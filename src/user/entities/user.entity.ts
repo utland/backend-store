@@ -1,30 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Check, Index } from 'typeorm';
 import { Order } from 'src/order/entities/order.entity';
 import { CartProduct } from './cartProduct.entity';
 import { Review } from 'src/review/entities/review.entity';
 
 @Entity('users')
+@Check(`"phone" LIKE '^+'`)
+@Check(`"email" LIKE '%@%'`)
+@Index("IDX_USER_ID", ["login"])
 export class User {
   @PrimaryGeneratedColumn({ name: 'user_id' })
   userId: number;
 
-  @Column({ length: 20 })
+  @Column({ length: 20, unique: true })
   login: string;
 
-  @Column({ length: 60 }) // Зазвичай тут зберігають хеш пароля
+  @Column({ length: 60 })
   password: string;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ type: 'text', nullable: true })
   address: string;
 
   @Column({ length: 30 })
   phone: string;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, unique: true })
   email: string;
 
-  @Column('text', { name: 'photo_url', nullable: true })
-  photoUrl: string;
+  @Column({ name: 'img_url', type: 'text', nullable: true })
+  imgUrl: string;
+
+  @CreateDateColumn({ name: 'created_at'})
+  createdAt: Date;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

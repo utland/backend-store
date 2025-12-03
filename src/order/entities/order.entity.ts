@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { OrderProduct } from './orderProduct.entity';
 import { User } from 'src/user/entities/user.entity';
 
@@ -14,9 +14,6 @@ export class Order {
   @PrimaryGeneratedColumn({ name: 'order_id' })
   orderId: number;
 
-  @Column({ type: 'date', name: 'order_date' })
-  orderDate: string;
-
   @Column({
     type: 'enum',
     enum: OrderStatus,
@@ -26,6 +23,12 @@ export class Order {
 
   @Column({ length: 50, name: 'order_address', nullable: true })
   orderAddress: string;
+
+  @CreateDateColumn({ name: 'created_at'})
+  createdAt: Date;
+  
+  @UpdateDateColumn({ name: 'updated_at'})
+  updatedAt: Date;
 
   @Column({ name: 'user_id' })
   userId: number;

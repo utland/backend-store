@@ -1,8 +1,9 @@
-import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, Check } from 'typeorm';
 import { User } from './user.entity';
 import { Product } from 'src/product/entities/product.entity';
 
 @Entity('cart_product')
+@Check(`"amount" > 0`)
 export class CartProduct {
   @PrimaryColumn({ name: 'user_id' })
   userId: number;
@@ -10,7 +11,7 @@ export class CartProduct {
   @PrimaryColumn({ name: 'product_id' })
   productId: number;
 
-  @Column('integer')
+  @Column({ type: 'integer'})
   amount: number;
 
   @ManyToOne(() => User, (user) => user.cart)
