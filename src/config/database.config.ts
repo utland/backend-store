@@ -1,5 +1,4 @@
 import { registerAs } from "@nestjs/config";
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 
 export const databaseConfig = registerAs("database", () => ({
     type: process.env.DATABASE_TYPE,
@@ -8,4 +7,5 @@ export const databaseConfig = registerAs("database", () => ({
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_DB,
-}))
+    synchronize: false,
+}));
