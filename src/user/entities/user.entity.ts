@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Ch
 import { Order } from 'src/order/entities/order.entity';
 import { CartProduct } from './cartProduct.entity';
 import { Review } from 'src/review/entities/review.entity';
+import { Role } from 'src/common/enums/role.enum';
 
 @Entity('users')
 @Check(`"phone" LIKE '^+'`)
@@ -31,6 +32,9 @@ export class User {
 
   @CreateDateColumn({ name: 'created_at'})
   createdAt: Date;
+
+  @Column({ type: 'enum', enum: Role })
+  role: Role
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

@@ -1,13 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { OrderProduct } from './orderProduct.entity';
 import { User } from 'src/user/entities/user.entity';
-
-export enum OrderStatus {
-  WAITING = 'waiting',
-  IN_PROCESS = 'in process',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-}
+import { OrderStatus } from 'src/common/enums/status.enum';
 
 @Entity('orders')
 export class Order {
