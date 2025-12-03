@@ -7,9 +7,11 @@ import { ConfigType } from "src/config/config.types";
 import { IJwtConfig } from "src/config/jwt.config";
 import { RolesGuard } from "src/common/guards/roles.guard";
 import { AuthGuard } from "src/common/guards/auth.guard";
+import { UserModule } from "src/user/user.module";
 
 @Module({
     imports: [
+        UserModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
