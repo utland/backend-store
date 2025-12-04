@@ -11,7 +11,6 @@ import {
 import { CreateSupplierDto } from "./dto/create-supplier.dto";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
-import { string } from "joi";
 import { UpdateSupplierDto } from "./dto/update-supplier.dto";
 import { Supplier } from "./entities/supplier.entity";
 import { SupplierService } from "./supplier.service";
