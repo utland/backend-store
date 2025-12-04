@@ -1,4 +1,15 @@
-import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    ForbiddenException,
+    Get,
+    Param,
+    ParseIntPipe,
+    Patch,
+    Post,
+} from "@nestjs/common";
 import { OrderService } from "./order.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { CurrentUserId } from "src/common/decorators/current-user-id.decorator";
@@ -14,22 +25,18 @@ import type { IPayload } from "src/common/interfaces/request.i";
 
 @Controller("order")
 export class OrderController {
-    constructor(
-        private readonly orderService: OrderService
-    ) {}
+    constructor(private readonly orderService: OrderService) {}
 
     @Post()
     public async create(
         @Body() createOrderDto: CreateOrderDto,
-        @CurrentUserId() userId: number
+        @CurrentUserId() userId: number,
     ): Promise<Order> {
         return await this.orderService.createOrder(userId, createOrderDto);
     }
 
     @Get()
-    public async findByUser(
-        @CurrentUserId() userId: number
-    ): Promise<Order[]> {
+    public async findByUser(@CurrentUserId() userId: number): Promise<Order[]> {
         return await this.orderService.findOrdersByUserId(userId);
     }
 
@@ -42,17 +49,22 @@ export class OrderController {
     @Patch("/status")
     public async updateStatus(
         @Body() updateStatsDto: UpdateOrderStatusDto,
-        @CurrentUser() user: IPayload
+        @CurrentUser() user: IPayload,
     ): Promise<Order> {
         const { orderId, status } = updateStatsDto;
 
         if (status !== OrderStatus.CANCELLED && user.role === Role.USER) {
-            throw new ForbiddenException("Only for ADMIN it's available to change STATUS");
+            throw new ForbiddenException(
+                "Only for ADMIN it's available to change STATUS",
+            );
         }
 
         const order = await this.checkOwnership(orderId, user.id);
-        
-        const updatedOrder = await this.orderService.updateStatus(order, status);
+
+        const updatedOrder = await this.orderService.updateStatus(
+            order,
+            status,
+        );
         return updatedOrder;
     }
 
@@ -66,21 +78,31 @@ export class OrderController {
 
         const order = await this.checkOwnership(orderId, userId);
 
-        const updatedOrder = await this.orderService.updateAddress(order, address);
+        const updatedOrder = await this.orderService.updateAddress(
+            order,
+            address,
+        );
         return updatedOrder;
     }
 
     @Delete("/:id")
     @Roles(Role.ADMIN)
-    public async deleteSoft(@Param("id", ParseIntPipe) orderId: number): Promise<void> {
+    public async deleteSoft(
+        @Param("id", ParseIntPipe) orderId: number,
+    ): Promise<void> {
         await this.orderService.deleteOrder(orderId);
     }
 
-    private async checkOwnership(orderId: number, userId: number): Promise<Order> {
+    private async checkOwnership(
+        orderId: number,
+        userId: number,
+    ): Promise<Order> {
         const order = await this.orderService.findOrder(orderId);
 
         if (order.userId !== userId) {
-            throw new ForbiddenException("This order is unavailable for other users");
+            throw new ForbiddenException(
+                "This order is unavailable for other users",
+            );
         }
 
         return order;

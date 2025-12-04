@@ -1,36 +1,50 @@
-import { Product } from 'src/product/entities/product.entity';
-import { User } from 'src/user/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, Check } from 'typeorm';
+import { Product } from "src/product/entities/product.entity";
+import { User } from "src/user/entities/user.entity";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    CreateDateColumn,
+    UpdateDateColumn,
+    Check,
+} from "typeorm";
 
-@Entity('review')
+@Entity("review")
 @Check(`"evaluation" >= 0 AND "evaluation" <= 5`)
 export class Review {
-  @PrimaryGeneratedColumn({ name: 'review_id' })
-  reviewId: number;
+    @PrimaryGeneratedColumn({ name: "review_id" })
+    reviewId: number;
 
-  @Column({ name: 'user_id' })
-  userId: number;
-  
-  @Column({ name: 'product_id' })
-  productId: number;
-  
-  @Column({ type: 'smallint'})
-  evaluation: number;
-  
-  @Column({ type: 'text', nullable: true })
-  comment: string;
-  
-  @CreateDateColumn({ name: 'created_at'})
-  createdAt: Date;
-  
-  @UpdateDateColumn({ name: 'updated_at'})
-  updatedAt: Date;
+    @Column({ name: "user_id" })
+    userId: number;
 
-  @ManyToOne(() => Product, (product) => product.reviews, { onDelete: 'CASCADE'})
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+    @Column({ name: "product_id" })
+    productId: number;
 
-  @ManyToOne(() => User, (user) => user.reviews, { onDelete: 'SET NULL', nullable: true})
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+    @Column({ type: "smallint" })
+    evaluation: number;
+
+    @Column({ type: "text", nullable: true })
+    comment: string;
+
+    @CreateDateColumn({ name: "created_at" })
+    createdAt: Date;
+
+    @UpdateDateColumn({ name: "updated_at" })
+    updatedAt: Date;
+
+    @ManyToOne(() => Product, (product) => product.reviews, {
+        onDelete: "CASCADE",
+    })
+    @JoinColumn({ name: "product_id" })
+    product: Product;
+
+    @ManyToOne(() => User, (user) => user.reviews, {
+        onDelete: "SET NULL",
+        nullable: true,
+    })
+    @JoinColumn({ name: "user_id" })
+    user: User;
 }

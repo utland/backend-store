@@ -12,33 +12,42 @@ export class CartService {
         private cartProductRepo: Repository<CartProduct>,
     ) {}
 
-    public async addCartProduct(userId: number, productId: number): Promise<CartProduct> {
-      return await this.cartProductRepo.save({
-        user: { userId },
-        product: { productId },
-        amount: 1
-      })
+    public async addCartProduct(
+        userId: number,
+        productId: number,
+    ): Promise<CartProduct> {
+        return await this.cartProductRepo.save({
+            user: { userId },
+            product: { productId },
+            amount: 1,
+        });
     }
-  
-    public async updateCartProduct(userId: number, amount: number): Promise<CartProduct> {
-      const cartProduct = this.findCartProduct(userId);
-  
-      return await this.cartProductRepo.save(Object.assign(cartProduct, { amount }))
-    }
-    
-    public async deleteCartProduct(id: number): Promise<void> {
-      const cartProduct = await this.findCartProduct(id);
 
-      await this.cartProductRepo.remove(cartProduct);
+    public async updateCartProduct(
+        userId: number,
+        amount: number,
+    ): Promise<CartProduct> {
+        const cartProduct = this.findCartProduct(userId);
+
+        return await this.cartProductRepo.save(
+            Object.assign(cartProduct, { amount }),
+        );
+    }
+
+    public async deleteCartProduct(id: number): Promise<void> {
+        const cartProduct = await this.findCartProduct(id);
+
+        await this.cartProductRepo.remove(cartProduct);
     }
 
     private async findCartProduct(id: number): Promise<CartProduct> {
-      const cartProduct = await this.cartProductRepo.findOne({ 
-        where: { userId: id }
-      });
-      
-      if (!cartProduct) throw new NotFoundException("This cartItem doesn't exist");
+        const cartProduct = await this.cartProductRepo.findOne({
+            where: { userId: id },
+        });
 
-      return cartProduct;
+        if (!cartProduct)
+            throw new NotFoundException("This cartItem doesn't exist");
+
+        return cartProduct;
     }
 }

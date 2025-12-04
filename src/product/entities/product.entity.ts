@@ -1,60 +1,76 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, UpdateDateColumn, CreateDateColumn, Check, DeleteDateColumn } from 'typeorm';
-import { OrderProduct } from 'src/order/entities/orderProduct.entity';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
-import { Category } from 'src/category/entities/category.entity';
-import { CartProduct } from 'src/user/entities/cartProduct.entity';
-import { Review } from 'src/review/entities/review.entity';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    JoinColumn,
+    OneToMany,
+    UpdateDateColumn,
+    CreateDateColumn,
+    Check,
+    DeleteDateColumn,
+} from "typeorm";
+import { OrderProduct } from "src/order/entities/orderProduct.entity";
+import { Supplier } from "src/supplier/entities/supplier.entity";
+import { Category } from "src/category/entities/category.entity";
+import { CartProduct } from "src/user/entities/cartProduct.entity";
+import { Review } from "src/review/entities/review.entity";
 
-@Entity('product')
+@Entity("product")
 @Check(`"price" > 0`)
 export class Product {
-  @PrimaryGeneratedColumn({ name: 'product_id' })
-  productId: number;
+    @PrimaryGeneratedColumn({ name: "product_id" })
+    productId: number;
 
-  @Column({ length: 30 })
-  name: string;
+    @Column({ length: 30 })
+    name: string;
 
-  @Column({ type: 'integer'})
-  price: number;
+    @Column({ type: "integer" })
+    price: number;
 
-  @Column({ type: 'text' })
-  description: string;
+    @Column({ type: "text" })
+    description: string;
 
-  @Column({ name: 'img_url', type: 'text', nullable: true })
-  imgUrl: string;
+    @Column({ name: "img_url", type: "text", nullable: true })
+    imgUrl: string;
 
-  @Column({ name: "is_stock", type: 'boolean', default: true})
-  isInStock: boolean;
+    @Column({ name: "is_stock", type: "boolean", default: true })
+    isInStock: boolean;
 
-  @CreateDateColumn({ name: 'created_at'})
-  createdAt: Date;
-  
-  @UpdateDateColumn({ name: 'updated_at'})
-  updatedAt: Date;
+    @CreateDateColumn({ name: "created_at" })
+    createdAt: Date;
 
-  @DeleteDateColumn({ name: "deleted_at", nullable: true })
-  deletedAt: Date;
+    @UpdateDateColumn({ name: "updated_at" })
+    updatedAt: Date;
 
-  @Column({ name: 'supplier_id' })
-  supplierId: number;
+    @DeleteDateColumn({ name: "deleted_at", nullable: true })
+    deletedAt: Date;
 
-  @Column({ name: 'category_id' })
-  categoryId: number;
-  
-  @ManyToOne(() => Supplier, (supplier) => supplier.products, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'supplier_id' })
-  supplier: Supplier;
+    @Column({ name: "supplier_id" })
+    supplierId: number;
 
-  @ManyToOne(() => Category, (category) => category.products, { nullable: true, onDelete: 'SET NULL'})
-  @JoinColumn({ name: 'category_id' })
-  category: Category;
+    @Column({ name: "category_id" })
+    categoryId: number;
 
-  @OneToMany(() => OrderProduct, (op) => op.product)
-  orderProducts: OrderProduct[];
+    @ManyToOne(() => Supplier, (supplier) => supplier.products, {
+        onDelete: "CASCADE",
+    })
+    @JoinColumn({ name: "supplier_id" })
+    supplier: Supplier;
 
-  @OneToMany(() => CartProduct, (cp) => cp.product)
-  cartProducts: CartProduct[];
+    @ManyToOne(() => Category, (category) => category.products, {
+        nullable: true,
+        onDelete: "SET NULL",
+    })
+    @JoinColumn({ name: "category_id" })
+    category: Category;
 
-  @OneToMany(() => Review, (review) => review.product)
-  reviews: Review[];
+    @OneToMany(() => OrderProduct, (op) => op.product)
+    orderProducts: OrderProduct[];
+
+    @OneToMany(() => CartProduct, (cp) => cp.product)
+    cartProducts: CartProduct[];
+
+    @OneToMany(() => Review, (review) => review.product)
+    reviews: Review[];
 }
