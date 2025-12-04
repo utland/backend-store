@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, UpdateDateColumn, CreateDateColumn, Check } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, UpdateDateColumn, CreateDateColumn, Check, DeleteDateColumn } from 'typeorm';
 import { OrderProduct } from 'src/order/entities/orderProduct.entity';
 import { Supplier } from 'src/supplier/entities/supplier.entity';
 import { Category } from 'src/category/entities/category.entity';
@@ -32,17 +32,20 @@ export class Product {
   @UpdateDateColumn({ name: 'updated_at'})
   updatedAt: Date;
 
+  @DeleteDateColumn({ name: "deleted_at", nullable: true })
+  deletedAt: Date;
+
   @Column({ name: 'supplier_id' })
   supplierId: number;
 
   @Column({ name: 'category_id' })
   categoryId: number;
   
-  @ManyToOne(() => Supplier, (supplier) => supplier.products)
+  @ManyToOne(() => Supplier, (supplier) => supplier.products, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'supplier_id' })
   supplier: Supplier;
 
-  @ManyToOne(() => Category, (category) => category.products)
+  @ManyToOne(() => Category, (category) => category.products, { nullable: true, onDelete: 'SET NULL'})
   @JoinColumn({ name: 'category_id' })
   category: Category;
 

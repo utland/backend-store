@@ -14,11 +14,11 @@ export class CartProduct {
   @Column({ type: 'integer'})
   amount: number;
 
-  @ManyToOne(() => User, (user) => user.cart)
+  @ManyToOne(() => User, (user) => user.cart, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Product, (product) => product.cartProducts)
+  @ManyToOne(() => Product, (product) => product.cartProducts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 }

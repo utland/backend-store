@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { OrderProduct } from './orderProduct.entity';
 import { User } from 'src/user/entities/user.entity';
 import { OrderStatus } from 'src/common/enums/status.enum';
@@ -24,10 +24,13 @@ export class Order {
   @UpdateDateColumn({ name: 'updated_at'})
   updatedAt: Date;
 
+  @DeleteDateColumn({ name: "deleted_at", nullable: true })
+  deletedAt: Date;
+
   @Column({ name: 'user_id' })
   userId: number;
 
-  @ManyToOne(() => User, (user) => user.orders)
+  @ManyToOne(() => User, (user) => user.orders, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

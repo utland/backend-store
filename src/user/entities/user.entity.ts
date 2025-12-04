@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Check, Index } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, Check, Index, DeleteDateColumn } from 'typeorm';
 import { Order } from 'src/order/entities/order.entity';
 import { CartProduct } from './cartProduct.entity';
 import { Review } from 'src/review/entities/review.entity';
@@ -33,7 +33,10 @@ export class User {
   @CreateDateColumn({ name: 'created_at'})
   createdAt: Date;
 
-  @Column({ type: 'enum', enum: Role })
+  @DeleteDateColumn({ name: "deleted_at", nullable: true })
+  deletedAt: Date;
+
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role
 
   @OneToMany(() => Order, (order) => order.user)
