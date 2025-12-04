@@ -3,6 +3,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { CartProduct } from './cartProduct.entity';
 import { Review } from 'src/review/entities/review.entity';
 import { Role } from 'src/common/enums/role.enum';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 @Check(`"phone" LIKE '^+'`)
@@ -15,6 +16,7 @@ export class User {
   @Column({ length: 20, unique: true })
   login: string;
 
+  @Exclude()
   @Column({ length: 60 })
   password: string;
 
