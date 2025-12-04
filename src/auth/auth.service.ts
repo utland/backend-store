@@ -21,8 +21,6 @@ export class AuthService {
     public async signIn(login: string, password: string): Promise<ISignInReturn> {
         const user = await this.userService.findByLogin(login);
 
-        if (!user) throw new NotFoundException("This user doesn't exist");
-
         const isPasswordCorrect = await this.passService.verify(password, user.password);
         if (!isPasswordCorrect) throw new UnauthorizedException("Password is incorrect");
 

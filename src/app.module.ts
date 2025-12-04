@@ -19,6 +19,7 @@ import { Category } from './category/entities/category.entity';
 import { Supplier } from './supplier/entities/supplier.entity';
 import { OrderProduct } from './order/entities/orderProduct.entity';
 import { CartProduct } from './user/entities/cartProduct.entity';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { CartProduct } from './user/entities/cartProduct.entity';
     ProductModule,
     SupplierModule,
     CategoryModule,
-    ReviewModule
+    ReviewModule,
+    TestModule
   ]
 })
 export class AppModule {}
