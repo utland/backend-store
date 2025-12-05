@@ -8,10 +8,27 @@ import { OrderStatus } from "src/common/enums/status.enum";
 import { Order } from "./entities/order.entity";
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { rejects } from "assert";
+import { Product } from "src/product/entities/product.entity";
+import { CreateOrderDto } from "./dto/create-order.dto";
+import { CreateOrderProductDto } from "./dto/create-order-product.dto";
+
+const queryRunnerMock = {
+    manager: {
+        find: jest.fn(),
+        save: jest.fn(),
+        create: jest.fn(),
+    },
+    connect: jest.fn(),
+    startTransaction: jest.fn(),
+    commitTransaction: jest.fn(),
+    rollbackTransaction: jest.fn(),
+    release: jest.fn(),
+};
 
 describe("OrderService", () => {
     let orderService: OrderService;
     let orderRepo: Repository<Order>;
+    let dataSource: DataSource;
 
     const testOrder = {
         orderId: 0,
@@ -32,7 +49,9 @@ describe("OrderService", () => {
                 },
                 {
                     provide: DataSource,
-                    useValue: {},
+                    useValue: {
+                        createQueryRunner: () => queryRunnerMock,
+                    },
                 },
                 OrderService,
             ],
@@ -40,6 +59,79 @@ describe("OrderService", () => {
 
         orderService = moduleRef.get<OrderService>(OrderService);
         orderRepo = moduleRef.get<Repository<Order>>(getRepositoryToken(Order));
+        dataSource = moduleRef.get<DataSource>(DataSource);
+    });
+
+    describe("createOrder", () => {
+        beforeEach(() => {
+            jest.spyOn(
+                dataSource.createQueryRunner().manager,
+                "find",
+            ).mockResolvedValueOnce([
+                { productId: 0, isInStock: false, name: "test" },
+            ] as any);
+        });
+
+        const createOrderDto = {
+            address: "",
+            createOrderProductsDto: [
+                {
+                    productId: 0,
+                },
+            ],
+        };
+
+        it("should throw exception if provided product is absent", async () => {
+            const orderDto = {
+                address: "",
+                createOrderProductsDto: [
+                    ...createOrderDto.createOrderProductsDto,
+                    {
+                        productId: 1,
+                    },
+                ],
+            };
+
+            await expect(
+                orderService.createOrder(0, orderDto as CreateOrderDto),
+            ).rejects.toThrow(NotFoundException);
+        });
+
+        it("should throw exception if provided product is out of stock", async () => {
+            jest.spyOn(
+                dataSource.createQueryRunner().manager,
+                "find",
+            ).mockResolvedValueOnce([
+                { productId: 0, isInStock: true, name: "test" },
+            ] as any);
+
+            const createOrderDto = {
+                address: "",
+                createOrderProductsDto: [
+                    {
+                        productId: 0,
+                    },
+                ],
+            };
+
+            await expect(
+                orderService.createOrder(0, createOrderDto as CreateOrderDto),
+            ).rejects.toThrow(BadRequestException);
+        });
+
+        it("should execute 'save' method if it passes successfully", async () => {
+            const saveSpy = jest
+                .spyOn(dataSource.createQueryRunner().manager, "save")
+                .mockResolvedValueOnce({ orderId: 0 });
+            jest.spyOn(
+                dataSource.createQueryRunner().manager,
+                "create",
+            ).mockReturnValue({} as any);
+
+            await orderService.createOrder(0, createOrderDto as CreateOrderDto);
+
+            expect(saveSpy).toHaveBeenCalled();
+        });
     });
 
     it("should throw exception if order is not found", async () => {

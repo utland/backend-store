@@ -9,11 +9,11 @@ import { RolesGuard } from "src/common/guards/roles.guard";
 import { AuthGuard } from "src/common/guards/auth.guard";
 import { UserModule } from "src/user/user.module";
 import { PasswordModule } from "src/password/password.module";
+import { PasswordService } from "src/password/password.service";
+import { UserService } from "src/user/user.service";
 
 @Module({
     imports: [
-        UserModule,
-        PasswordModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -34,6 +34,8 @@ import { PasswordModule } from "src/password/password.module";
     controllers: [AuthController],
     providers: [
         AuthService,
+        PasswordService,
+        UserService,
         {
             provide: "APP_GUARD",
             useClass: RolesGuard,

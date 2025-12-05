@@ -5,13 +5,16 @@ import {
     NotAcceptableException,
     NotFoundException,
 } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, In, Repository } from "typeorm";
 import { Order } from "./entities/order.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { OrderProduct } from "./entities/orderProduct.entity";
 import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
 import { OrderStatus } from "src/common/enums/status.enum";
+import { ProductService } from "src/product/product.service";
+import { Product } from "src/product/entities/product.entity";
+import { CreateOrderProductDto } from "./dto/create-order-product.dto";
 
 @Injectable()
 export class OrderService {
@@ -33,6 +36,16 @@ export class OrderService {
         await queryRunner.startTransaction();
 
         try {
+            const idsOfProduct = this.getArrayIds(createOrderProductsDto);
+
+            const products = await queryRunner.manager.find(Product, {
+                where: {
+                    productId: In(idsOfProduct),
+                },
+            });
+
+            this.validateProducts(products, idsOfProduct.length);
+
             const order = await queryRunner.manager.save(Order, {
                 userId,
                 orderAddress: address,
@@ -60,6 +73,22 @@ export class OrderService {
             throw error;
         } finally {
             await queryRunner.release();
+        }
+    }
+
+    private validateProducts(products: Product[], reqLenght: number) {
+        if (products.length !== reqLenght) {
+            throw new NotFoundException(
+                "One of provided products is not found",
+            );
+        }
+
+        for (let product of products) {
+            if (!product.isInStock) {
+                throw new BadRequestException(
+                    `${product.name} is out of stock`,
+                );
+            }
         }
     }
 
@@ -116,5 +145,9 @@ export class OrderService {
             throw new BadRequestException("This order is already deleted");
 
         await this.orderRepo.softRemove(order);
+    }
+
+    private getArrayIds(orderProducts: CreateOrderProductDto[]): number[] {
+        return orderProducts.map((e) => e.productId);
     }
 }
