@@ -100,6 +100,7 @@ export class OrderService {
         const orders = await this.orderRepo.find({
             where: { userId },
             relations: ["orderProducts"],
+            order: { createdAt: "DESC"}
         });
 
         return orders;
@@ -122,21 +123,21 @@ export class OrderService {
         order: Order,
         status: OrderStatus,
     ): Promise<Order> {
-        this.validateUpdateStatus(order.status);
-
-        order.status = status;
-
-        const updatedOrder = await this.orderRepo.save(order);
-        return updatedOrder;
-    }
-
-    private validateUpdateStatus(status: OrderStatus) {
         if (status === OrderStatus.COMPLETED || status === OrderStatus.CANCELLED) {
             throw new BadRequestException("This order is closed for updates");
         }
+
+        order.status = status;
+        const updatedOrder = await this.orderRepo.save(order);
+
+        return updatedOrder;
     }
 
     public async updateAddress(order: Order, address: string): Promise<Order> {
+        if (order.status !== OrderStatus.IN_PROCESS) {
+            throw new BadRequestException("This order is closed for updates")
+        }
+
         order.orderAddress = address;
         const updatedOrder = await this.orderRepo.save(order);
 
@@ -146,10 +147,10 @@ export class OrderService {
     public async deleteOrder(orderId: number): Promise<void> {
         const order = await this.findOrder(orderId);
 
-        if (order.deletedAt)
+        if (order.deletedAt) {
             throw new BadRequestException("This order is already deleted");
+        }
 
         await this.orderRepo.softRemove(order);
     }
-
 }

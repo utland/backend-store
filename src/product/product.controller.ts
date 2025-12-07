@@ -7,6 +7,7 @@ import { Product } from "./entities/product.entity";
 import { Category } from "src/category/entities/category.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
 import { ProductService } from "./product.service";
+import { FindProductByCategoryDto } from "./dto/find-product-by-category.dto";
 
 @Controller("product")
 export class ProductController {
@@ -21,6 +22,13 @@ export class ProductController {
     @Get()
     public async findAll(): Promise<Product[]> {
         return await this.productService.findAll();
+    }
+
+    @Get("/byCategory")
+    public async findByCategory(
+        findByCategoryDto: FindProductByCategoryDto
+    ): Promise<Product[]> {
+        return await this.productService.findProductByCategory(findByCategoryDto);
     }
 
     @Get("/:id")

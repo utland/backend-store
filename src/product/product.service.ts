@@ -4,14 +4,13 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm";
-import { Supplier } from "src/supplier/entities/supplier.entity";
-import { Category } from "src/category/entities/category.entity";
+import { FindProductByCategoryDto } from "./dto/find-product-by-category.dto";
 
 @Injectable()
 export class ProductService {
     constructor(
         @InjectRepository(Product)
-        private productRepo: Repository<Product>
+        private productRepo: Repository<Product>,
     ) {}
 
     public async createProduct(createProductDto: CreateProductDto): Promise<Product> {
@@ -30,8 +29,20 @@ export class ProductService {
 
     public async findAll(): Promise<Product[]> {
         return await this.productRepo.find({
-            relations: ["category"]
+            relations: ["category", "supplier"]
         });
+    }
+
+    public async findProductByCategory(findByDto: FindProductByCategoryDto): Promise<Product[]> {
+        const { orderBy, categoryId, isInStock } = findByDto;
+
+        const products = await this.productRepo.find({
+            where: { categoryId, isInStock },
+            relations: { supplier: true },
+            order: { [orderBy]: "DESC"}
+        })
+        
+        return products;
     }
 
     public async findProduct(productId: number): Promise<Product> {

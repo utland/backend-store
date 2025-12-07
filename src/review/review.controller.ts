@@ -5,6 +5,7 @@ import { CreateReviewDto } from "./dto/create-review.dto";
 import { Review } from "./entities/review.entity";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { isAdmin } from "src/common/decorators/is-admin.decorator";
+import { SelectReviewsByDto } from "./dto/select-review-by.dto";
 
 @Controller("review")
 export class ReviewController {
@@ -16,8 +17,10 @@ export class ReviewController {
     }
 
     @Get("/:id")
-    public async findByProductId(@Param("id", ParseIntPipe) productId: number): Promise<Review[]> {
-        return await this.reviewService.findReviewsByProductId(productId);
+    public async findByProductId(
+        selectReviewsByDto: SelectReviewsByDto
+    ): Promise<Review[]> {
+        return await this.reviewService.findReviewsByProductId(selectReviewsByDto);
     }
 
     @Patch("/:id")

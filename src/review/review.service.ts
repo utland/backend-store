@@ -4,6 +4,7 @@ import { Review } from "./entities/review.entity";
 import { Repository } from "typeorm";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
+import { SelectReviewsByDto } from "./dto/select-review-by.dto";
 
 @Injectable()
 export class ReviewService {
@@ -27,8 +28,16 @@ export class ReviewService {
         return review;
     }
 
-    public async findReviewsByProductId(productId: number): Promise<Review[]> {
-        const reviews = await this.reviewRepo.find({ where: { productId } });
+    public async findReviewsByProductId(
+        selectReviewsByDto: SelectReviewsByDto
+    ): Promise<Review[]> {
+        const { productId, order } = selectReviewsByDto;
+        
+        const reviews = await this.reviewRepo.find({
+            where: { productId },
+            relations: { user: true },
+            order: { createdAt: order }
+        });
 
         return reviews;
     }
