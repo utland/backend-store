@@ -19,7 +19,7 @@ describe("AuthService", () => {
         userId: 0,
         login: "login",
         role: Role.USER,
-        password: "hashedPass",
+        password: "hashedPass"
     };
 
     beforeEach(async () => {
@@ -29,23 +29,23 @@ describe("AuthService", () => {
                 {
                     provide: JwtService,
                     useValue: {
-                        signAsync: jest.fn(),
-                    },
+                        signAsync: jest.fn()
+                    }
                 },
                 {
                     provide: UserService,
                     useValue: {
-                        findByLogin: jest.fn(),
-                    },
+                        findByLogin: jest.fn()
+                    }
                 },
                 {
                     provide: PasswordService,
                     useValue: {
                         verify: jest.fn(),
-                        hash: jest.fn(),
-                    },
-                },
-            ],
+                        hash: jest.fn()
+                    }
+                }
+            ]
         }).compile();
 
         authService = moduleRef.get<AuthService>(AuthService);
@@ -53,21 +53,14 @@ describe("AuthService", () => {
         passwordServiceMock = moduleRef.get<PasswordService>(PasswordService);
         userServiceMock = moduleRef.get<UserService>(UserService);
 
-        jest.spyOn(userServiceMock, "findByLogin").mockResolvedValueOnce(
-            mockedUser as User,
-        );
-        jest.spyOn(jwtServiceMock, "signAsync").mockResolvedValueOnce(
-            "testToken",
-        );
+        jest.spyOn(userServiceMock, "findByLogin").mockResolvedValueOnce(mockedUser as User);
+        jest.spyOn(jwtServiceMock, "signAsync").mockResolvedValueOnce("testToken");
     });
 
     it("should return token and id after successful sign-in", async () => {
         jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(true);
 
-        const res: ISignInReturn = await authService.signIn(
-            "login",
-            "testPass",
-        );
+        const res: ISignInReturn = await authService.signIn("login", "testPass");
 
         expect(res).toEqual({ id: 0, accessToken: "testToken" });
     });
@@ -75,9 +68,7 @@ describe("AuthService", () => {
     it("should throw error if password is incorrect", async () => {
         jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(false);
 
-        expect(authService.signIn("login", "testPass")).rejects.toThrow(
-            UnauthorizedException,
-        );
+        expect(authService.signIn("login", "testPass")).rejects.toThrow(UnauthorizedException);
     });
 
     it("should check if this user exists before creating", async () => {
@@ -89,11 +80,9 @@ describe("AuthService", () => {
             address: "address",
             password: "password",
             phone: "phone",
-            email: "email",
+            email: "email"
         };
 
-        expect(authService.signUp(mockedSignUDto)).rejects.toThrow(
-            NotAcceptableException,
-        );
+        expect(authService.signUp(mockedSignUDto)).rejects.toThrow(NotAcceptableException);
     });
 });

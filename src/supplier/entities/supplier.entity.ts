@@ -1,11 +1,5 @@
 import { Product } from "src/product/entities/product.entity";
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToMany,
-    Check,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Check } from "typeorm";
 
 @Entity("supplier")
 @Check(`"phone" LIKE '^+'`)

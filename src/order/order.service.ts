@@ -95,7 +95,7 @@ export class OrderService {
     private getArrayIds(orderProducts: CreateOrderProductDto[]): number[] {
         return orderProducts.map((e) => e.productId);
     }
-    
+
     public async findOrdersByUserId(userId: number): Promise<Order[]> {
         const orders = await this.orderRepo.find({
             where: { userId },
@@ -122,17 +122,18 @@ export class OrderService {
         order: Order,
         status: OrderStatus,
     ): Promise<Order> {
-        if (
-            order.status === OrderStatus.COMPLETED ||
-            order.status === OrderStatus.CANCELLED
-        ) {
-            throw new BadRequestException("This order is closed for updates");
-        }
+        this.validateUpdateStatus(order.status);
 
         order.status = status;
 
         const updatedOrder = await this.orderRepo.save(order);
         return updatedOrder;
+    }
+
+    private validateUpdateStatus(status: OrderStatus) {
+        if (status === OrderStatus.COMPLETED || status === OrderStatus.CANCELLED) {
+            throw new BadRequestException("This order is closed for updates");
+        }
     }
 
     public async updateAddress(order: Order, address: string): Promise<Order> {

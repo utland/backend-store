@@ -11,10 +11,7 @@ export class AuthController {
     @Public()
     @Post("login")
     public async signIn(@Body() signInDto: SignInDto): Promise<ISignInReturn> {
-        return await this.authService.signIn(
-            signInDto.login,
-            signInDto.password,
-        );
+        return await this.authService.signIn(signInDto.login, signInDto.password);
     }
     @Public()
     @Post("/register")

@@ -9,6 +9,6 @@ export const jwtConfig = registerAs(
     "jwt",
     (): IJwtConfig => ({
         secret: process.env.JWT_SECRET as string,
-        expiresIn: process.env.JWT_EXPIRES_IN as string,
-    }),
+        expiresIn: process.env.JWT_EXPIRES_IN as string
+    })
 );

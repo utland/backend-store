@@ -9,29 +9,21 @@ import { CartProduct } from "../entities/cartProduct.entity";
 export class CartService {
     constructor(
         @InjectRepository(CartProduct)
-        private cartProductRepo: Repository<CartProduct>,
+        private cartProductRepo: Repository<CartProduct>
     ) {}
 
-    public async addCartProduct(
-        userId: number,
-        productId: number,
-    ): Promise<CartProduct> {
+    public async addCartProduct(userId: number, productId: number): Promise<CartProduct> {
         return await this.cartProductRepo.save({
             user: { userId },
             product: { productId },
-            amount: 1,
+            amount: 1
         });
     }
 
-    public async updateCartProduct(
-        userId: number,
-        amount: number,
-    ): Promise<CartProduct> {
+    public async updateCartProduct(userId: number, amount: number): Promise<CartProduct> {
         const cartProduct = this.findCartProduct(userId);
 
-        return await this.cartProductRepo.save(
-            Object.assign(cartProduct, { amount }),
-        );
+        return await this.cartProductRepo.save(Object.assign(cartProduct, { amount }));
     }
 
     public async deleteCartProduct(id: number): Promise<void> {
@@ -42,11 +34,10 @@ export class CartService {
 
     private async findCartProduct(id: number): Promise<CartProduct> {
         const cartProduct = await this.cartProductRepo.findOne({
-            where: { userId: id },
+            where: { userId: id }
         });
 
-        if (!cartProduct)
-            throw new NotFoundException("This cartItem doesn't exist");
+        if (!cartProduct) throw new NotFoundException("This cartItem doesn't exist");
 
         return cartProduct;
     }

@@ -6,7 +6,7 @@ import {
     CreateDateColumn,
     Check,
     Index,
-    DeleteDateColumn,
+    DeleteDateColumn
 } from "typeorm";
 import { Order } from "src/order/entities/order.entity";
 import { CartProduct } from "./cartProduct.entity";

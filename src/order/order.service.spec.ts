@@ -22,9 +22,8 @@ describe("OrderService", () => {
         orderId: 0,
         userId: 0,
         status: OrderStatus.WAITING,
-        orderAddress: "address",
+        orderAddress: "address"
     };
-
 
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -33,17 +32,17 @@ describe("OrderService", () => {
                     provide: getRepositoryToken(Order),
                     useValue: {
                         save: jest.fn(),
-                        findOne: jest.fn(),
-                    },
+                        findOne: jest.fn()
+                    }
                 },
                 {
                     provide: DataSource,
                     useValue: {
-                        createQueryRunner: () => queryRunnerMock,
-                    },
+                        createQueryRunner: () => queryRunnerMock
+                    }
                 },
-                OrderService,
-            ],
+                OrderService
+            ]
         }).compile();
 
         orderService = moduleRef.get<OrderService>(OrderService);
@@ -56,21 +55,19 @@ describe("OrderService", () => {
             manager: {
                 find: jest.fn(),
                 save: jest.fn(),
-                create: jest.fn(),
+                create: jest.fn()
             },
             connect: jest.fn(),
             startTransaction: jest.fn(),
             commitTransaction: jest.fn(),
             rollbackTransaction: jest.fn(),
             release: jest.fn()
-        }
-    })
+        };
+    });
 
     describe("createOrder", () => {
         beforeEach(() => {
-            queryRunnerMock.manager.find.mockResolvedValue([
-                { productId: 0, isInStock: true, name: "test" }
-            ]);
+            queryRunnerMock.manager.find.mockResolvedValue([{ productId: 0, isInStock: true, name: "test" }]);
 
             queryRunnerMock.manager.create.mockResolvedValue({});
 
@@ -81,32 +78,28 @@ describe("OrderService", () => {
             address: "",
             createOrderProductsDto: [
                 {
-                    productId: 0,
+                    productId: 0
                 }
-            ],
+            ]
         };
 
         it("should throw exception if provided product is absent", async () => {
             const testOrderDto = {
                 address: "",
-                createOrderProductsDto: [
-                    { productId: 0 }, { productId: 1 }
-                ]
+                createOrderProductsDto: [{ productId: 0 }, { productId: 1 }]
             };
 
-            await expect(
-                orderService.createOrder(0, testOrderDto as CreateOrderDto)
-            ).rejects.toThrow(NotFoundException);
+            await expect(orderService.createOrder(0, testOrderDto as CreateOrderDto)).rejects.toThrow(
+                NotFoundException
+            );
         });
 
         it("should throw exception if provided product is out of stock", async () => {
-            queryRunnerMock.manager.find.mockResolvedValue([
-                { productId: 0, isInStock: false, name: "test" }
-            ]);
+            queryRunnerMock.manager.find.mockResolvedValue([{ productId: 0, isInStock: false, name: "test" }]);
 
-            await expect(
-                orderService.createOrder(0, createOrderDto as CreateOrderDto),
-            ).rejects.toThrow(BadRequestException);
+            await expect(orderService.createOrder(0, createOrderDto as CreateOrderDto)).rejects.toThrow(
+                BadRequestException
+            );
         });
 
         it("should execute 'save' method if it passes successfully", async () => {
@@ -120,15 +113,11 @@ describe("OrderService", () => {
     it("should throw exception if order is not found", async () => {
         jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(null);
 
-        await expect(orderService.findOrder(0)).rejects.toThrow(
-            NotFoundException,
-        );
+        await expect(orderService.findOrder(0)).rejects.toThrow(NotFoundException);
     });
 
     it("should return order if it is found", async () => {
-        jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(
-            testOrder as Order,
-        );
+        jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(testOrder as Order);
 
         const order = await orderService.findOrder(0);
 
@@ -137,29 +126,20 @@ describe("OrderService", () => {
 
     it("should throw exception if order is completed", async () => {
         await expect(
-            orderService.updateStatus(
-                { ...testOrder, status: OrderStatus.COMPLETED } as Order,
-                OrderStatus.COMPLETED,
-            ),
+            orderService.updateStatus({ ...testOrder, status: OrderStatus.COMPLETED } as Order, OrderStatus.COMPLETED)
         ).rejects.toThrow(BadRequestException);
     });
 
     it("should throw exception if order is cancelled", async () => {
         await expect(
-            orderService.updateStatus(
-                { ...testOrder, status: OrderStatus.CANCELLED } as Order,
-                OrderStatus.COMPLETED,
-            ),
+            orderService.updateStatus({ ...testOrder, status: OrderStatus.CANCELLED } as Order, OrderStatus.COMPLETED)
         ).rejects.toThrow(BadRequestException);
     });
 
     it("should return updated order if order is not closed", async () => {
         jest.spyOn(orderRepo, "save").mockResolvedValueOnce(testOrder as Order);
 
-        const order = await orderService.updateStatus(
-            testOrder as Order,
-            OrderStatus.CANCELLED,
-        );
+        const order = await orderService.updateStatus(testOrder as Order, OrderStatus.CANCELLED);
 
         expect(order).toEqual(testOrder);
     });
@@ -167,11 +147,9 @@ describe("OrderService", () => {
     it("should throw exception if order is already deleted", async () => {
         jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce({
             ...testOrder,
-            deletedAt: new Date(),
+            deletedAt: new Date()
         } as Order);
 
-        await expect(orderService.deleteOrder(0)).rejects.toThrow(
-            BadRequestException,
-        );
+        await expect(orderService.deleteOrder(0)).rejects.toThrow(BadRequestException);
     });
 });

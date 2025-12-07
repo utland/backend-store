@@ -1,9 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotAcceptableException,
-    NotFoundException,
-} from "@nestjs/common";
+import { BadRequestException, Injectable, NotAcceptableException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
@@ -18,14 +13,14 @@ export class UserService {
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
 
-        private readonly passService: PasswordService,
+        private readonly passService: PasswordService
     ) {}
 
     public async findByLogin(login: string): Promise<User> {
         const user = await this.userRepo.findOne({
             where: {
-                login,
-            },
+                login
+            }
         });
 
         if (!user) throw new NotFoundException("User is not found");
@@ -38,14 +33,14 @@ export class UserService {
         hashed: string,
         address: string,
         phone: string,
-        email: string,
+        email: string
     ): Promise<User> {
         const user = this.userRepo.create({
             login,
             password: hashed,
             address,
             phone,
-            email,
+            email
         });
 
         await this.userRepo.save(user);
@@ -61,7 +56,7 @@ export class UserService {
     public async findUser(userId: number): Promise<User> {
         const user = await this.userRepo.findOne({
             where: { userId },
-            relations: ["cartProducts.product"],
+            relations: ["cartProducts.product"]
         });
 
         if (!user) throw new NotFoundException("This user doesn't exist");
@@ -69,10 +64,7 @@ export class UserService {
         return user;
     }
 
-    public async updateUser(
-        userId: number,
-        updateUserDto: UpdateUserDto,
-    ): Promise<User> {
+    public async updateUser(userId: number, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await this.findUser(userId);
 
         return await this.userRepo.save(Object.assign(user, updateUserDto));
@@ -88,9 +80,7 @@ export class UserService {
             throw new BadRequestException("Setting admin role is forbidden");
         }
         if (user.role === Role.ADMIN) {
-            throw new BadRequestException(
-                "Changing role of admin is unavailable",
-            );
+            throw new BadRequestException("Changing role of admin is unavailable");
         }
 
         user.role = role;
@@ -102,12 +92,8 @@ export class UserService {
 
         const user = await this.findByLogin(login);
 
-        const isPasswordCorrect = await this.passService.verify(
-            oldPass,
-            user.password,
-        );
-        if (!isPasswordCorrect)
-            throw new NotAcceptableException("Password is invalid");
+        const isPasswordCorrect = await this.passService.verify(oldPass, user.password);
+        if (!isPasswordCorrect) throw new NotAcceptableException("Password is invalid");
 
         user.password = await this.passService.hash(newPass);
 

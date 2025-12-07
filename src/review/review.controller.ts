@@ -1,14 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    ForbiddenException,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-} from "@nestjs/common";
+import { Body, Controller, Delete, ForbiddenException, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { ReviewService } from "./review.service";
 import { CurrentUserId } from "src/common/decorators/current-user-id.decorator";
 import { CreateReviewDto } from "./dto/create-review.dto";
@@ -21,17 +11,12 @@ export class ReviewController {
     constructor(private readonly reviewService: ReviewService) {}
 
     @Post()
-    public async create(
-        @CurrentUserId() userId: number,
-        @Body() createReviewDto: CreateReviewDto,
-    ): Promise<Review> {
+    public async create(@CurrentUserId() userId: number, @Body() createReviewDto: CreateReviewDto): Promise<Review> {
         return this.reviewService.createReview(userId, createReviewDto);
     }
 
     @Get("/:id")
-    public async findByProductId(
-        @Param("id", ParseIntPipe) productId: number,
-    ): Promise<Review[]> {
+    public async findByProductId(@Param("id", ParseIntPipe) productId: number): Promise<Review[]> {
         return await this.reviewService.findReviewsByProductId(productId);
     }
 
@@ -39,7 +24,7 @@ export class ReviewController {
     public async update(
         @Param("id", ParseIntPipe) reviewId: number,
         @Body() updateReviewDto: UpdateReviewDto,
-        @CurrentUserId() userId: number,
+        @CurrentUserId() userId: number
     ): Promise<Review> {
         const review = await this.reviewService.findReview(reviewId);
         this.checkOwnerchip(review, userId);
@@ -51,7 +36,7 @@ export class ReviewController {
     public async remove(
         @Param("id", ParseIntPipe) reviewId: number,
         @CurrentUserId() userId: number,
-        @isAdmin() isAdmin: boolean,
+        @isAdmin() isAdmin: boolean
     ): Promise<void> {
         const review = await this.reviewService.findReview(reviewId);
         if (!isAdmin) this.checkOwnerchip(review, userId);

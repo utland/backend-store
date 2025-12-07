@@ -9,12 +9,10 @@ import { UpdateSupplierDto } from "./dto/update-supplier.dto";
 export class SupplierService {
     constructor(
         @InjectRepository(Supplier)
-        private readonly supplierRepo: Repository<Supplier>,
+        private readonly supplierRepo: Repository<Supplier>
     ) {}
 
-    public async createSupplier(
-        createSupplierDto: CreateSupplierDto,
-    ): Promise<Supplier> {
+    public async createSupplier(createSupplierDto: CreateSupplierDto): Promise<Supplier> {
         const supplier = this.supplierRepo.create(createSupplierDto);
 
         await this.supplierRepo.save(supplier);
@@ -29,24 +27,18 @@ export class SupplierService {
     public async findSupplier(supplierId: number): Promise<Supplier> {
         const supplier = await this.supplierRepo.findOne({
             where: { supplierId },
-            relations: ["products"],
+            relations: ["products"]
         });
 
-        if (!supplier)
-            throw new NotFoundException("This supplier doesn't exist");
+        if (!supplier) throw new NotFoundException("This supplier doesn't exist");
 
         return supplier;
     }
 
-    public async updateSupplier(
-        supplierId: number,
-        updateSupplierDto: UpdateSupplierDto,
-    ): Promise<Supplier> {
+    public async updateSupplier(supplierId: number, updateSupplierDto: UpdateSupplierDto): Promise<Supplier> {
         const supplier = await this.findSupplier(supplierId);
 
-        return await this.supplierRepo.save(
-            Object.assign(supplier, updateSupplierDto),
-        );
+        return await this.supplierRepo.save(Object.assign(supplier, updateSupplierDto));
     }
 
     public async deleteSupplier(supplierId: number): Promise<void> {

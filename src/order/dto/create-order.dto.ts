@@ -1,10 +1,4 @@
-import {
-    IsArray,
-    IsNotEmpty,
-    IsString,
-    Validate,
-    ValidateNested,
-} from "class-validator";
+import { IsArray, IsNotEmpty, IsString, Validate, ValidateNested } from "class-validator";
 import { CreateOrderProductDto } from "./create-order-product.dto";
 import { Type } from "class-transformer";
 

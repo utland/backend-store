@@ -1,11 +1,4 @@
-import {
-    Entity,
-    Column,
-    ManyToOne,
-    JoinColumn,
-    PrimaryColumn,
-    Check,
-} from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, Check } from "typeorm";
 import { User } from "./user.entity";
 import { Product } from "src/product/entities/product.entity";
 
@@ -26,7 +19,7 @@ export class CartProduct {
     user: User;
 
     @ManyToOne(() => Product, (product) => product.cartProducts, {
-        onDelete: "CASCADE",
+        onDelete: "CASCADE"
     })
     @JoinColumn({ name: "product_id" })
     product: Product;

@@ -13,6 +13,6 @@ import { PasswordService } from "src/password/password.service";
     imports: [TypeOrmModule.forFeature([User, CartProduct])],
     providers: [UserService, CartService, PasswordService],
     controllers: [UserController, CartController],
-    exports: [UserService],
+    exports: [UserService]
 })
 export class UserModule {}

@@ -1,12 +1,6 @@
 import { Product } from "src/product/entities/product.entity";
 import { text } from "stream/consumers";
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToMany,
-    Index,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Index } from "typeorm";
 
 @Entity("category")
 @Index("IDX_category_name", ["name"])

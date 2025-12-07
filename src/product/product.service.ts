@@ -11,21 +11,18 @@ import { Category } from "src/category/entities/category.entity";
 export class ProductService {
     constructor(
         @InjectRepository(Product)
-        private productRepo: Repository<Product>,
+        private productRepo: Repository<Product>
     ) {}
 
-    public async createProduct(
-        createProductDto: CreateProductDto,
-    ): Promise<Product> {
-        const { name, description, price, supplierId, categoryId } =
-            createProductDto;
+    public async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+        const { name, description, price, supplierId, categoryId } = createProductDto;
 
         const product = this.productRepo.create({
             name,
             description,
             price,
             categoryId,
-            supplierId,
+            supplierId
         });
 
         return await this.productRepo.save(product);
@@ -33,14 +30,14 @@ export class ProductService {
 
     public async findAll(): Promise<Product[]> {
         return await this.productRepo.find({
-            relations: ["category"],
+            relations: ["category"]
         });
     }
 
     public async findProduct(productId: number): Promise<Product> {
         const product = await this.productRepo.findOne({
             where: { productId },
-            relations: ["reviews", "supplier", "category"],
+            relations: ["reviews", "supplier", "category"]
         });
 
         if (!product) throw new NotFoundException();
@@ -48,14 +45,9 @@ export class ProductService {
         return product;
     }
 
-    public async updateProduct(
-        productId: number,
-        updateProductDto: UpdateProductDto,
-    ): Promise<Product> {
+    public async updateProduct(productId: number, updateProductDto: UpdateProductDto): Promise<Product> {
         const product = await this.findProduct(productId);
-        return await this.productRepo.save(
-            Object.assign(product, updateProductDto),
-        );
+        return await this.productRepo.save(Object.assign(product, updateProductDto));
     }
 
     public async deleteProduct(productId: number): Promise<void> {

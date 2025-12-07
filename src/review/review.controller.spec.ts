@@ -16,12 +16,12 @@ describe("ReviewController", () => {
         userId: 0,
         productId: 0,
         evaluation: 0,
-        comment: "text",
+        comment: "text"
     };
 
     const updateDto: UpdateReviewDto = {
         evaluation: 0,
-        comment: "",
+        comment: ""
     };
 
     beforeEach(async () => {
@@ -33,30 +33,24 @@ describe("ReviewController", () => {
                     useValue: {
                         findReview: jest.fn(),
                         updateReview: jest.fn(),
-                        removeReview: jest.fn(),
-                    },
-                },
-            ],
+                        removeReview: jest.fn()
+                    }
+                }
+            ]
         }).compile();
 
         reviewController = moduleRef.get<ReviewController>(ReviewController);
         reviewService = moduleRef.get<ReviewService>(ReviewService);
 
-        jest.spyOn(reviewService, "findReview").mockResolvedValueOnce(
-            testReview as Review,
-        );
+        jest.spyOn(reviewService, "findReview").mockResolvedValueOnce(testReview as Review);
     });
 
     it("should throw exception if user doenst have access to update review", async () => {
-        await expect(reviewController.update(0, updateDto, 1)).rejects.toThrow(
-            ForbiddenException,
-        );
+        await expect(reviewController.update(0, updateDto, 1)).rejects.toThrow(ForbiddenException);
     });
 
     it("should throw exception if user doenst have access to delete review", async () => {
-        await expect(reviewController.remove(0, 1, false)).rejects.toThrow(
-            ForbiddenException,
-        );
+        await expect(reviewController.remove(0, 1, false)).rejects.toThrow(ForbiddenException);
     });
 
     it("should remove review if user is ADMIN", async () => {
@@ -76,9 +70,7 @@ describe("ReviewController", () => {
     });
 
     it("should update review successfully", async () => {
-        jest.spyOn(reviewService, "updateReview").mockResolvedValueOnce(
-            Object.assign(testReview, updateDto) as Review,
-        );
+        jest.spyOn(reviewService, "updateReview").mockResolvedValueOnce(Object.assign(testReview, updateDto) as Review);
 
         const review = await reviewController.update(0, updateDto, 0);
 

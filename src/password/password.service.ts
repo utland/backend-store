@@ -9,10 +9,7 @@ export class PasswordService {
         return await bcrypt.hash(password, this.saltRounds);
     }
 
-    public async verify(
-        password: string,
-        hashedPassword: string,
-    ): Promise<boolean> {
+    public async verify(password: string, hashedPassword: string): Promise<boolean> {
         if (password === hashedPassword) return true;
         return await bcrypt.compare(password, hashedPassword);
     }

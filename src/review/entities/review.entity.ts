@@ -8,7 +8,7 @@ import {
     JoinColumn,
     CreateDateColumn,
     UpdateDateColumn,
-    Check,
+    Check
 } from "typeorm";
 
 @Entity("review")
@@ -36,14 +36,14 @@ export class Review {
     updatedAt: Date;
 
     @ManyToOne(() => Product, (product) => product.reviews, {
-        onDelete: "CASCADE",
+        onDelete: "CASCADE"
     })
     @JoinColumn({ name: "product_id" })
     product: Product;
 
     @ManyToOne(() => User, (user) => user.reviews, {
         onDelete: "SET NULL",
-        nullable: true,
+        nullable: true
     })
     @JoinColumn({ name: "user_id" })
     user: User;

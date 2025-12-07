@@ -9,12 +9,10 @@ import { Repository } from "typeorm";
 export class CategoryService {
     constructor(
         @InjectRepository(Category)
-        private categoryRepo: Repository<Category>,
+        private categoryRepo: Repository<Category>
     ) {}
 
-    public async createCategory(
-        createCategoryDto: CreateCategoryDto,
-    ): Promise<Category> {
+    public async createCategory(createCategoryDto: CreateCategoryDto): Promise<Category> {
         const category = this.categoryRepo.create(createCategoryDto);
 
         return await this.categoryRepo.save(category);
@@ -26,23 +24,17 @@ export class CategoryService {
 
     public async findOne(categoryId: number): Promise<Category> {
         const category = await this.categoryRepo.findOne({
-            where: { categoryId },
+            where: { categoryId }
         });
-        if (!category)
-            throw new NotFoundException("This category doesn't exist");
+        if (!category) throw new NotFoundException("This category doesn't exist");
 
         return category;
     }
 
-    public async updateCategory(
-        categoryId: number,
-        updateCategoryDto: UpdateCategoryDto,
-    ): Promise<Category> {
+    public async updateCategory(categoryId: number, updateCategoryDto: UpdateCategoryDto): Promise<Category> {
         const category = await this.findOne(categoryId);
 
-        return await this.categoryRepo.save(
-            Object.assign(category, updateCategoryDto),
-        );
+        return await this.categoryRepo.save(Object.assign(category, updateCategoryDto));
     }
 
     public async deleteCategory(categoryId: number): Promise<void> {

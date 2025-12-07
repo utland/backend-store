@@ -7,7 +7,7 @@ import {
     OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
-    DeleteDateColumn,
+    DeleteDateColumn
 } from "typeorm";
 import { OrderProduct } from "./orderProduct.entity";
 import { User } from "src/user/entities/user.entity";
@@ -21,7 +21,7 @@ export class Order {
     @Column({
         type: "enum",
         enum: OrderStatus,
-        default: OrderStatus.WAITING,
+        default: OrderStatus.WAITING
     })
     status: OrderStatus;
 
@@ -42,7 +42,7 @@ export class Order {
 
     @ManyToOne(() => User, (user) => user.orders, {
         onDelete: "SET NULL",
-        nullable: true,
+        nullable: true
     })
     @JoinColumn({ name: "user_id" })
     user: User;

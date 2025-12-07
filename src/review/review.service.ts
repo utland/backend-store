@@ -9,20 +9,17 @@ import { UpdateReviewDto } from "./dto/update-review.dto";
 export class ReviewService {
     constructor(
         @InjectRepository(Review)
-        private readonly reviewRepo: Repository<Review>,
+        private readonly reviewRepo: Repository<Review>
     ) {}
 
-    public async createReview(
-        userId: number,
-        createReviewDto: CreateReviewDto,
-    ): Promise<Review> {
+    public async createReview(userId: number, createReviewDto: CreateReviewDto): Promise<Review> {
         const { productId, evaluation, comment } = createReviewDto;
 
         const review = this.reviewRepo.create({
             userId,
             productId,
             evaluation,
-            comment,
+            comment
         });
 
         await this.reviewRepo.save(review);
@@ -39,7 +36,7 @@ export class ReviewService {
     public async findReview(reviewId: number): Promise<Review> {
         const review = await this.reviewRepo.findOne({
             where: { reviewId },
-            relations: ["user"],
+            relations: ["user"]
         });
 
         if (!review) throw new NotFoundException();
@@ -47,13 +44,8 @@ export class ReviewService {
         return review;
     }
 
-    public async updateReview(
-        review: Review,
-        updateReviewDto: UpdateReviewDto,
-    ): Promise<Review> {
-        return await this.reviewRepo.save(
-            Object.assign(review, updateReviewDto),
-        );
+    public async updateReview(review: Review, updateReviewDto: UpdateReviewDto): Promise<Review> {
+        return await this.reviewRepo.save(Object.assign(review, updateReviewDto));
     }
 
     public async removeReview(review: Review): Promise<void> {

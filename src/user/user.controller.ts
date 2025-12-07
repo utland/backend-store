@@ -8,7 +8,7 @@ import {
     Delete,
     NotFoundException,
     HttpStatus,
-    ParseIntPipe,
+    ParseIntPipe
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -31,33 +31,24 @@ export class UserController {
     }
 
     @Get("/:id")
-    public async findById(
-        @Param("id", ParseIntPipe) userId: number,
-    ): Promise<User> {
+    public async findById(@Param("id", ParseIntPipe) userId: number): Promise<User> {
         return await this.userService.findUser(userId);
     }
 
     @Public()
     @Patch("/pass")
-    public async changePassword(
-        @Body() changePassDto: ChangePassDto,
-    ): Promise<void> {
+    public async changePassword(@Body() changePassDto: ChangePassDto): Promise<void> {
         await this.userService.changePass(changePassDto);
     }
 
     @Patch()
-    public async update(
-        @Body() updateUserDto: UpdateUserDto,
-        @CurrentUserId() userId: number,
-    ): Promise<User> {
+    public async update(@Body() updateUserDto: UpdateUserDto, @CurrentUserId() userId: number): Promise<User> {
         return await this.userService.updateUser(userId, updateUserDto);
     }
 
     @Roles(Role.ADMIN)
     @Delete("/:id")
-    public async delete(
-        @Param("id", ParseIntPipe) userId: number,
-    ): Promise<void> {
+    public async delete(@Param("id", ParseIntPipe) userId: number): Promise<void> {
         await this.userService.deleteUser(userId);
     }
 
@@ -65,7 +56,7 @@ export class UserController {
     @Patch("/role")
     public async changeRole(
         @Param("id", ParseIntPipe) userId: number,
-        @Body() changeRoleDto: ChangeRoleDto,
+        @Body() changeRoleDto: ChangeRoleDto
     ): Promise<void> {
         await this.userService.changeRole(userId, changeRoleDto.role);
     }

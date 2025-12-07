@@ -8,7 +8,7 @@ import {
     UpdateDateColumn,
     CreateDateColumn,
     Check,
-    DeleteDateColumn,
+    DeleteDateColumn
 } from "typeorm";
 import { OrderProduct } from "src/order/entities/orderProduct.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
@@ -53,14 +53,14 @@ export class Product {
     categoryId: number;
 
     @ManyToOne(() => Supplier, (supplier) => supplier.products, {
-        onDelete: "CASCADE",
+        onDelete: "CASCADE"
     })
     @JoinColumn({ name: "supplier_id" })
     supplier: Supplier;
 
     @ManyToOne(() => Category, (category) => category.products, {
         nullable: true,
-        onDelete: "SET NULL",
+        onDelete: "SET NULL"
     })
     @JoinColumn({ name: "category_id" })
     category: Category;

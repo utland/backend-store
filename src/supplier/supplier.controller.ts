@@ -1,13 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from "@nestjs/common";
 import { CreateSupplierDto } from "./dto/create-supplier.dto";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
@@ -39,19 +30,14 @@ export class SupplierController {
     @Roles(Role.ADMIN)
     public async update(
         @Param("id", ParseIntPipe) supplierId: number,
-        @Body() updateSupplierDto: UpdateSupplierDto,
+        @Body() updateSupplierDto: UpdateSupplierDto
     ): Promise<Supplier> {
-        return await this.supplierService.updateSupplier(
-            supplierId,
-            updateSupplierDto,
-        );
+        return await this.supplierService.updateSupplier(supplierId, updateSupplierDto);
     }
 
     @Delete("/:id")
     @Roles(Role.ADMIN)
-    public async delete(
-        @Param("id", ParseIntPipe) supplierId: number,
-    ): Promise<void> {
+    public async delete(@Param("id", ParseIntPipe) supplierId: number): Promise<void> {
         return await this.supplierService.deleteSupplier(supplierId);
     }
 }

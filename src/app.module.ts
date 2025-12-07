@@ -27,17 +27,8 @@ import { CartProduct } from "./user/entities/cartProduct.entity";
             inject: [ConfigService],
             useFactory: (configService: ConfigService<ConfigType>) => ({
                 ...configService.get("database"),
-                entities: [
-                    User,
-                    Product,
-                    Order,
-                    Review,
-                    Category,
-                    Supplier,
-                    OrderProduct,
-                    CartProduct,
-                ],
-            }),
+                entities: [User, Product, Order, Review, Category, Supplier, OrderProduct, CartProduct]
+            })
         }),
 
         ConfigModule.forRoot({
@@ -45,15 +36,15 @@ import { CartProduct } from "./user/entities/cartProduct.entity";
             validationSchema: appSchema,
             load: [databaseConfig, jwtConfig],
             validationOptions: {
-                abortEarly: true,
-            },
+                abortEarly: true
+            }
         }),
         UserModule,
         OrderModule,
         ProductModule,
         SupplierModule,
         CategoryModule,
-        ReviewModule,
-    ],
+        ReviewModule
+    ]
 })
 export class AppModule {}

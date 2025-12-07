@@ -18,18 +18,16 @@ import { UserService } from "src/user/user.service";
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService<ConfigType>) => {
-                const jwtConfig = configService.get<IJwtConfig>(
-                    "jwt",
-                ) as IJwtConfig;
+                const jwtConfig = configService.get<IJwtConfig>("jwt") as IJwtConfig;
 
                 return {
                     secret: jwtConfig.secret,
                     signOptions: {
-                        expiresIn: jwtConfig.expiresIn as any,
-                    },
+                        expiresIn: jwtConfig.expiresIn as any
+                    }
                 };
-            },
-        }),
+            }
+        })
     ],
     controllers: [AuthController],
     providers: [
@@ -38,12 +36,12 @@ import { UserService } from "src/user/user.service";
         UserService,
         {
             provide: "APP_GUARD",
-            useClass: RolesGuard,
+            useClass: RolesGuard
         },
         {
             provide: "APP_GUARD",
-            useClass: AuthGuard,
-        },
-    ],
+            useClass: AuthGuard
+        }
+    ]
 })
 export class AuthModule {}
