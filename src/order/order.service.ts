@@ -92,6 +92,10 @@ export class OrderService {
         }
     }
 
+    private getArrayIds(orderProducts: CreateOrderProductDto[]): number[] {
+        return orderProducts.map((e) => e.productId);
+    }
+    
     public async findOrdersByUserId(userId: number): Promise<Order[]> {
         const orders = await this.orderRepo.find({
             where: { userId },
@@ -147,7 +151,4 @@ export class OrderService {
         await this.orderRepo.softRemove(order);
     }
 
-    private getArrayIds(orderProducts: CreateOrderProductDto[]): number[] {
-        return orderProducts.map((e) => e.productId);
-    }
 }

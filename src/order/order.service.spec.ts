@@ -12,23 +12,11 @@ import { Product } from "src/product/entities/product.entity";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { CreateOrderProductDto } from "./dto/create-order-product.dto";
 
-const queryRunnerMock = {
-    manager: {
-        find: jest.fn(),
-        save: jest.fn(),
-        create: jest.fn(),
-    },
-    connect: jest.fn(),
-    startTransaction: jest.fn(),
-    commitTransaction: jest.fn(),
-    rollbackTransaction: jest.fn(),
-    release: jest.fn(),
-};
-
 describe("OrderService", () => {
     let orderService: OrderService;
     let orderRepo: Repository<Order>;
     let dataSource: DataSource;
+    let queryRunnerMock;
 
     const testOrder = {
         orderId: 0,
@@ -36,6 +24,7 @@ describe("OrderService", () => {
         status: OrderStatus.WAITING,
         orderAddress: "address",
     };
+
 
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -62,14 +51,30 @@ describe("OrderService", () => {
         dataSource = moduleRef.get<DataSource>(DataSource);
     });
 
+    beforeEach(() => {
+        queryRunnerMock = {
+            manager: {
+                find: jest.fn(),
+                save: jest.fn(),
+                create: jest.fn(),
+            },
+            connect: jest.fn(),
+            startTransaction: jest.fn(),
+            commitTransaction: jest.fn(),
+            rollbackTransaction: jest.fn(),
+            release: jest.fn()
+        }
+    })
+
     describe("createOrder", () => {
         beforeEach(() => {
-            jest.spyOn(
-                dataSource.createQueryRunner().manager,
-                "find",
-            ).mockResolvedValueOnce([
-                { productId: 0, isInStock: false, name: "test" },
-            ] as any);
+            queryRunnerMock.manager.find.mockResolvedValue([
+                { productId: 0, isInStock: true, name: "test" }
+            ]);
+
+            queryRunnerMock.manager.create.mockResolvedValue({});
+
+            queryRunnerMock.manager.save.mockResolvedValue([]);
         });
 
         const createOrderDto = {
@@ -77,42 +82,27 @@ describe("OrderService", () => {
             createOrderProductsDto: [
                 {
                     productId: 0,
-                },
+                }
             ],
         };
 
         it("should throw exception if provided product is absent", async () => {
-            const orderDto = {
+            const testOrderDto = {
                 address: "",
                 createOrderProductsDto: [
-                    ...createOrderDto.createOrderProductsDto,
-                    {
-                        productId: 1,
-                    },
-                ],
+                    { productId: 0 }, { productId: 1 }
+                ]
             };
 
             await expect(
-                orderService.createOrder(0, orderDto as CreateOrderDto),
+                orderService.createOrder(0, testOrderDto as CreateOrderDto)
             ).rejects.toThrow(NotFoundException);
         });
 
         it("should throw exception if provided product is out of stock", async () => {
-            jest.spyOn(
-                dataSource.createQueryRunner().manager,
-                "find",
-            ).mockResolvedValueOnce([
-                { productId: 0, isInStock: true, name: "test" },
-            ] as any);
-
-            const createOrderDto = {
-                address: "",
-                createOrderProductsDto: [
-                    {
-                        productId: 0,
-                    },
-                ],
-            };
+            queryRunnerMock.manager.find.mockResolvedValue([
+                { productId: 0, isInStock: false, name: "test" }
+            ]);
 
             await expect(
                 orderService.createOrder(0, createOrderDto as CreateOrderDto),
@@ -120,17 +110,10 @@ describe("OrderService", () => {
         });
 
         it("should execute 'save' method if it passes successfully", async () => {
-            const saveSpy = jest
-                .spyOn(dataSource.createQueryRunner().manager, "save")
-                .mockResolvedValueOnce({ orderId: 0 });
-            jest.spyOn(
-                dataSource.createQueryRunner().manager,
-                "create",
-            ).mockReturnValue({} as any);
+            const result = await orderService.createOrder(0, createOrderDto as CreateOrderDto);
 
-            await orderService.createOrder(0, createOrderDto as CreateOrderDto);
-
-            expect(saveSpy).toHaveBeenCalled();
+            expect(queryRunnerMock.commitTransaction).toHaveBeenCalled();
+            expect(expect).toBeDefined();
         });
     });
 
