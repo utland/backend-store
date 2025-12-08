@@ -10,7 +10,7 @@ import { FindProductByCategoryDto } from "./dto/find-product-by-category.dto";
 export class ProductService {
     constructor(
         @InjectRepository(Product)
-        private productRepo: Repository<Product>,
+        private productRepo: Repository<Product>
     ) {}
 
     public async createProduct(createProductDto: CreateProductDto): Promise<Product> {
@@ -39,9 +39,9 @@ export class ProductService {
         const products = await this.productRepo.find({
             where: { categoryId, isInStock },
             relations: { supplier: true },
-            order: { [orderBy]: "DESC"}
-        })
-        
+            order: { [orderBy]: "DESC" }
+        });
+
         return products;
     }
 

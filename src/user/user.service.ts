@@ -28,6 +28,14 @@ export class UserService {
         return user;
     }
 
+    public async isUserExist(login: string): Promise<boolean> {
+        const user = await this.userRepo.findOne({ where: { login } });
+
+        if (!user) return false;
+
+        return true;
+    }
+
     public async createUser(
         login: string,
         hashed: string,
@@ -56,7 +64,7 @@ export class UserService {
     public async findUser(userId: number): Promise<User> {
         const user = await this.userRepo.findOne({
             where: { userId },
-            relations: ["cartProducts.product"]
+            relations: ["cart.product"]
         });
 
         if (!user) throw new NotFoundException("This user doesn't exist");

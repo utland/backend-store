@@ -4,12 +4,20 @@ import { Supplier } from "./entities/supplier.entity";
 import { Repository } from "typeorm";
 import { CreateSupplierDto } from "./dto/create-supplier.dto";
 import { UpdateSupplierDto } from "./dto/update-supplier.dto";
+import { SupplierSales } from "./entities/supplier-statistic.entity";
+import { DataSource } from "typeorm";
+import { SupplierSalesDto } from "./dto/supplier-sales.dto";
 
 @Injectable()
 export class SupplierService {
     constructor(
         @InjectRepository(Supplier)
-        private readonly supplierRepo: Repository<Supplier>
+        private readonly supplierRepo: Repository<Supplier>,
+
+        @InjectRepository(SupplierSales)
+        private readonly supplierSalesRepo: Repository<SupplierSales>,
+
+        private readonly dataSource: DataSource
     ) {}
 
     public async createSupplier(createSupplierDto: CreateSupplierDto): Promise<Supplier> {
@@ -44,5 +52,14 @@ export class SupplierService {
     public async deleteSupplier(supplierId: number): Promise<void> {
         const supplier = await this.findSupplier(supplierId);
         await this.supplierRepo.remove(supplier);
+    }
+
+    public async getSupplierSalesForMonth(supplierSalesDto: SupplierSalesDto): Promise<SupplierSales[]> {
+        const { year, month } = supplierSalesDto;
+        const supplierSalesTable = await this.supplierSalesRepo.find({
+            where: { month: `${year}-${month}-01` }
+        });
+
+        return supplierSalesTable;
     }
 }

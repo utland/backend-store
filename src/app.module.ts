@@ -19,6 +19,8 @@ import { Category } from "./category/entities/category.entity";
 import { Supplier } from "./supplier/entities/supplier.entity";
 import { OrderProduct } from "./order/entities/orderProduct.entity";
 import { CartProduct } from "./user/entities/cartProduct.entity";
+import { AuthModule } from "./auth/auth.module";
+import { SupplierSales } from "./supplier/entities/supplier-statistic.entity";
 
 @Module({
     imports: [
@@ -27,7 +29,7 @@ import { CartProduct } from "./user/entities/cartProduct.entity";
             inject: [ConfigService],
             useFactory: (configService: ConfigService<ConfigType>) => ({
                 ...configService.get("database"),
-                entities: [User, Product, Order, Review, Category, Supplier, OrderProduct, CartProduct]
+                entities: [User, Product, Order, Review, Category, Supplier, OrderProduct, CartProduct, SupplierSales]
             })
         }),
 
@@ -39,6 +41,7 @@ import { CartProduct } from "./user/entities/cartProduct.entity";
                 abortEarly: true
             }
         }),
+        AuthModule,
         UserModule,
         OrderModule,
         ProductModule,

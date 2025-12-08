@@ -3,7 +3,7 @@ import { number } from "joi";
 
 const allowedOrderBy = ["name", "price"] as const;
 
-export type OrderByType = typeof allowedOrderBy[number]
+export type OrderByType = (typeof allowedOrderBy)[number];
 
 export class FindProductByCategoryDto {
     @IsString()

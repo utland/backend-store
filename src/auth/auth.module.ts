@@ -14,6 +14,7 @@ import { UserService } from "src/user/user.service";
 
 @Module({
     imports: [
+        UserModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
@@ -33,14 +34,13 @@ import { UserService } from "src/user/user.service";
     providers: [
         AuthService,
         PasswordService,
-        UserService,
-        {
-            provide: "APP_GUARD",
-            useClass: RolesGuard
-        },
         {
             provide: "APP_GUARD",
             useClass: AuthGuard
+        },
+        {
+            provide: "APP_GUARD",
+            useClass: RolesGuard
         }
     ]
 })

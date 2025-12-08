@@ -5,10 +5,18 @@ import { Role } from "src/common/enums/role.enum";
 import { UpdateSupplierDto } from "./dto/update-supplier.dto";
 import { Supplier } from "./entities/supplier.entity";
 import { SupplierService } from "./supplier.service";
+import { SupplierSales } from "./entities/supplier-statistic.entity";
+import { SupplierSalesDto } from "./dto/supplier-sales.dto";
 
 @Controller("supplier")
 export class SupplierController {
     constructor(private readonly supplierService: SupplierService) {}
+
+    @Get("sales")
+    @Roles(Role.ADMIN)
+    public async getInfoAboutSAles(@Body() supplierSalesDto: SupplierSalesDto): Promise<SupplierSales[]> {
+        return await this.supplierService.getSupplierSalesForMonth(supplierSalesDto);
+    }
 
     @Post()
     @Roles(Role.ADMIN)

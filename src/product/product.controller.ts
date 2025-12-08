@@ -25,9 +25,7 @@ export class ProductController {
     }
 
     @Get("/byCategory")
-    public async findByCategory(
-        findByCategoryDto: FindProductByCategoryDto
-    ): Promise<Product[]> {
+    public async findByCategory(findByCategoryDto: FindProductByCategoryDto): Promise<Product[]> {
         return await this.productService.findProductByCategory(findByCategoryDto);
     }
 

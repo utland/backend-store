@@ -15,7 +15,7 @@ import { Role } from "src/common/enums/role.enum";
 import { Exclude } from "class-transformer";
 
 @Entity("users")
-@Check(`"phone" LIKE '^+'`)
+@Check(`"phone" LIKE '+%'`)
 @Check(`"email" LIKE '%@%'`)
 @Index("IDX_USER_ID", ["login"])
 export class User {

@@ -13,8 +13,8 @@ export interface ISignInReturn {
 @Injectable()
 export class AuthService {
     constructor(
-        private userService: UserService,
         private jwtService: JwtService,
+        private userService: UserService,
         private passService: PasswordService
     ) {}
 
@@ -40,7 +40,7 @@ export class AuthService {
 
         const hashed = await this.passService.hash(password);
 
-        const isExisted = await this.userService.findByLogin(login);
+        const isExisted = await this.userService.isUserExist(login);
         if (isExisted) throw new NotAcceptableException("This login exists already");
 
         await this.userService.createUser(login, hashed, address, phone, email);

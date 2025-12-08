@@ -3,7 +3,7 @@ import {
     ForbiddenException,
     Injectable,
     NotAcceptableException,
-    NotFoundException,
+    NotFoundException
 } from "@nestjs/common";
 import { DataSource, In, Repository } from "typeorm";
 import { Order } from "./entities/order.entity";
@@ -22,41 +22,38 @@ export class OrderService {
         private readonly dataSource: DataSource,
 
         @InjectRepository(Order)
-        private readonly orderRepo: Repository<Order>,
+        private readonly orderRepo: Repository<Order>
     ) {}
 
-    public async createOrder(
-        userId: number,
-        createOrderDto: CreateOrderDto,
-    ): Promise<Order> {
-        const { address, createOrderProductsDto } = createOrderDto;
+    public async createOrder(userId: number, createOrderDto: CreateOrderDto): Promise<Order> {
+        const { address, orderItems } = createOrderDto;
         const queryRunner = this.dataSource.createQueryRunner();
 
         await queryRunner.connect();
         await queryRunner.startTransaction();
 
         try {
-            const idsOfProduct = this.getArrayIds(createOrderProductsDto);
+            const idsOfProduct = this.getArrayIds(orderItems);
 
             const products = await queryRunner.manager.find(Product, {
                 where: {
-                    productId: In(idsOfProduct),
-                },
+                    productId: In(idsOfProduct)
+                }
             });
 
             this.validateProducts(products, idsOfProduct.length);
 
             const order = await queryRunner.manager.save(Order, {
                 userId,
-                orderAddress: address,
+                orderAddress: address
             });
 
-            const orderProducts = createOrderProductsDto.map((item) => {
+            const orderProducts = orderItems.map((item) => {
                 return queryRunner.manager.create(OrderProduct, {
                     orderId: order.orderId,
                     productId: item.productId,
                     amount: item.amount,
-                    price: item.price,
+                    price: item.price
                 });
             });
 
@@ -78,16 +75,12 @@ export class OrderService {
 
     private validateProducts(products: Product[], reqLenght: number) {
         if (products.length !== reqLenght) {
-            throw new NotFoundException(
-                "One of provided products is not found",
-            );
+            throw new NotFoundException("One of provided products is not found");
         }
 
         for (let product of products) {
             if (!product.isInStock) {
-                throw new BadRequestException(
-                    `${product.name} is out of stock`,
-                );
+                throw new BadRequestException(`${product.name} is out of stock`);
             }
         }
     }
@@ -100,7 +93,7 @@ export class OrderService {
         const orders = await this.orderRepo.find({
             where: { userId },
             relations: ["orderProducts"],
-            order: { createdAt: "DESC"}
+            order: { createdAt: "DESC" }
         });
 
         return orders;
@@ -119,11 +112,8 @@ export class OrderService {
         return order;
     }
 
-    public async updateStatus(
-        order: Order,
-        status: OrderStatus,
-    ): Promise<Order> {
-        if (status === OrderStatus.COMPLETED || status === OrderStatus.CANCELLED) {
+    public async updateStatus(order: Order, status: OrderStatus): Promise<Order> {
+        if (order.status === OrderStatus.COMPLETED || order.status === OrderStatus.CANCELLED) {
             throw new BadRequestException("This order is closed for updates");
         }
 
@@ -135,7 +125,7 @@ export class OrderService {
 
     public async updateAddress(order: Order, address: string): Promise<Order> {
         if (order.status !== OrderStatus.IN_PROCESS) {
-            throw new BadRequestException("This order is closed for updates")
+            throw new BadRequestException("This order is closed for updates");
         }
 
         order.orderAddress = address;

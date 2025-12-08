@@ -28,11 +28,9 @@ export class ReviewService {
         return review;
     }
 
-    public async findReviewsByProductId(
-        selectReviewsByDto: SelectReviewsByDto
-    ): Promise<Review[]> {
+    public async findReviewsByProductId(selectReviewsByDto: SelectReviewsByDto): Promise<Review[]> {
         const { productId, order } = selectReviewsByDto;
-        
+
         const reviews = await this.reviewRepo.find({
             where: { productId },
             relations: { user: true },

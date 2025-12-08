@@ -2,7 +2,7 @@ import { Product } from "src/product/entities/product.entity";
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Check } from "typeorm";
 
 @Entity("supplier")
-@Check(`"phone" LIKE '^+'`)
+@Check(`"phone" LIKE '+%'`)
 @Check(`"email" LIKE '%@%'`)
 export class Supplier {
     @PrimaryGeneratedColumn({ name: "supplier_id" })
