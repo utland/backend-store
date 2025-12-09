@@ -43,10 +43,27 @@ export class OrderController {
         return await this.orderService.findAll();
     }
 
+    @Get("/:id")
+    public async findOrder(
+        @isAdmin() isAdmin: boolean,
+        @CurrentUserId() userId: number,
+        @Param("id", ParseIntPipe) orderId: number
+    ): Promise<Order> {
+
+        const order = await this.orderService.findOrder(orderId);
+
+        if (!isAdmin) {
+            this.checkOwnership(order, userId);
+        }
+
+        return order;
+    }
+
     @Patch("/status")
     public async updateStatus(
         @Body() updateStatsDto: UpdateOrderStatusDto,
-        @CurrentUser() user: IPayload
+        @CurrentUser() user: IPayload,
+        @isAdmin() isAdmin: boolean
     ): Promise<Order> {
         const { orderId, status } = updateStatsDto;
 
@@ -54,7 +71,11 @@ export class OrderController {
             throw new ForbiddenException("Only for ADMIN it's available to change STATUS");
         }
 
-        const order = await this.checkOwnership(orderId, user.id);
+        const order = await this.orderService.findOrder(orderId);
+        
+        if (!isAdmin) {
+            this.checkOwnership(order, user.id);
+        }
 
         const updatedOrder = await this.orderService.updateStatus(order, status);
         return updatedOrder;
@@ -68,7 +89,8 @@ export class OrderController {
     ): Promise<Order> {
         const { orderId, address } = updateAddressDto;
 
-        const order = await this.checkOwnership(orderId, userId);
+        const order = await this.orderService.findOrder(orderId);
+        this.checkOwnership(order, userId);
 
         const updatedOrder = await this.orderService.updateAddress(order, address);
         return updatedOrder;
@@ -80,13 +102,9 @@ export class OrderController {
         await this.orderService.deleteOrder(orderId);
     }
 
-    private async checkOwnership(orderId: number, userId: number): Promise<Order> {
-        const order = await this.orderService.findOrder(orderId);
-
+    private checkOwnership(order: Order, userId: number): void {
         if (order.userId !== userId) {
             throw new ForbiddenException("This order is unavailable for other users");
         }
-
-        return order;
     }
 }

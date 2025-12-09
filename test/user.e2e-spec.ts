@@ -40,13 +40,13 @@ describe("User test", () => {
                     .get("/user")
                     .set("Authorization", `Bearer ${token1}`)
                     .expect(200)
-                    .expect((res) => res.body.length === 3);
+                    .expect((res) => expect(res.body.length).toBe(3));
 
             await request(server)
                     .get("/user")
                     .set("Authorization", `Bearer ${token2}`)
                     .expect(200)
-                    .expect((res) => res.body.length === 3);
+                    .expect((res) => expect(res.body.length).toBe(3));
         })
 
         it("should be unavailable for USER", async () => {

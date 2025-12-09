@@ -33,8 +33,12 @@ export class OrderService {
         await queryRunner.startTransaction();
 
         try {
-            const idsOfProduct = this.getArrayIds(orderItems);
+            const order = await queryRunner.manager.save(Order, {
+                userId,
+                orderAddress: address
+            });
 
+            const idsOfProduct = this.getArrayIds(orderItems);
             const products = await queryRunner.manager.find(Product, {
                 where: {
                     productId: In(idsOfProduct)
@@ -42,11 +46,6 @@ export class OrderService {
             });
 
             this.validateProducts(products, idsOfProduct.length);
-
-            const order = await queryRunner.manager.save(Order, {
-                userId,
-                orderAddress: address
-            });
 
             const orderProducts = orderItems.map((item) => {
                 return queryRunner.manager.create(OrderProduct, {
@@ -92,7 +91,7 @@ export class OrderService {
     public async findOrdersByUserId(userId: number): Promise<Order[]> {
         const orders = await this.orderRepo.find({
             where: { userId },
-            relations: ["orderProducts"],
+            relations: ["orderProducts", "orderProducts.product"],
             order: { createdAt: "DESC" }
         });
 
@@ -124,7 +123,7 @@ export class OrderService {
     }
 
     public async updateAddress(order: Order, address: string): Promise<Order> {
-        if (order.status !== OrderStatus.IN_PROCESS) {
+        if (order.status !== OrderStatus.WAITING) {
             throw new BadRequestException("This order is closed for updates");
         }
 

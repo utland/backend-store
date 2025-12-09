@@ -7,6 +7,6 @@ export class UpdateOrderStatusDto {
     orderId: number;
 
     @IsEnum(OrderStatus)
-    @IsOptional()
+    @IsNotEmpty()
     status: OrderStatus;
 }

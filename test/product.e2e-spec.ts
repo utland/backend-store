@@ -21,7 +21,6 @@ describe("Product test", () => {
     let categoryId: number;
     let supplierId: number;
     
-    
     beforeAll(async () => {
         test = await TestBuilder.create();
         server = test.app.getHttpServer();
@@ -98,7 +97,7 @@ describe("Product test", () => {
                     .get("/product")
                     .set("Authorization", `Bearer ${token}`)
                     .expect(200)
-                    .expect(res => res.body.length === 3);
+                    .expect(res => expect(res.body.length).toBe(3));
         })
     })
 
@@ -107,7 +106,7 @@ describe("Product test", () => {
             const token = tokens.get("user")?.token;
 
             const categoryId2 = await entityBuilder.createCategory();
-            
+
             await entityBuilder.createProduct(supplierId, categoryId);
             await entityBuilder.createProduct(supplierId, categoryId);
             await entityBuilder.createProduct(supplierId, categoryId2);
@@ -116,7 +115,7 @@ describe("Product test", () => {
                     .get(`/product/byCategory?orderBy=name&categoryId=${categoryId}&isInStock=true`)
                     .set("Authorization", `Bearer ${token}`)
                     .expect(200)
-                    .expect(res => res.body.length === 2);
+                    .expect(res => expect(res.body.length).toBe(2));
         })
     })
 
@@ -182,12 +181,11 @@ describe("Product test", () => {
             const token = tokens.get("admin")?.token;
 
             const productId = await entityBuilder.createProduct(supplierId, categoryId);
-            const categoryId2 = await entityBuilder.createCategory();
 
             await request(server)
                     .patch(`/product/${productId}`)
                     .set("Authorization", `Bearer ${token}`)
-                    .send({ ...updateProductDto, categoryId })
+                    .send({ ...updateProductDto })
                     .expect(200)
                     .expect(res => {
                         expect(res.body.deletedAt).toBeUndefined()
@@ -199,7 +197,7 @@ describe("Product test", () => {
                         expect(res.body.imgUrl).toBeDefined()
                         expect(res.body.createdAt).toBeDefined()
                         expect(res.body.updatedAt).toBeDefined()    
-                        expect(res.body.categoryId).toBe(categoryId2)   
+                        expect(res.body.categoryId).toBe(categoryId)   
                         expect(res.body.supplierId).toBe(supplierId)   
                     });
         })

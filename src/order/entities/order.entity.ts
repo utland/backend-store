@@ -12,6 +12,7 @@ import {
 import { OrderProduct } from "./orderProduct.entity";
 import { User } from "src/user/entities/user.entity";
 import { OrderStatus } from "src/common/enums/status.enum";
+import { Exclude } from "class-transformer";
 
 @Entity("orders")
 export class Order {
@@ -34,6 +35,7 @@ export class Order {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
 
+    @Exclude()
     @DeleteDateColumn({ name: "deleted_at", nullable: true })
     deletedAt: Date;
 

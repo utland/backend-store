@@ -3,6 +3,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { SignUpDto } from "src/auth/dto/sign-up.dto";
 import { Category } from "src/category/entities/category.entity";
 import { Role } from "src/common/enums/role.enum";
+import { Order } from "src/order/entities/order.entity";
 import { Product } from "src/product/entities/product.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
 import { User } from "src/user/entities/user.entity";
@@ -108,7 +109,10 @@ export class EntityBuilder {
     public async createCategory(): Promise<number> {
         const categoryRepo = this.app.get<Repository<Category>>(getRepositoryToken(Category));
 
-        const { categoryId } = await categoryRepo.save(categoryTest);
+        const { categoryId } = await categoryRepo.save({
+            name: categoryTest.name,
+            img_url: categoryTest.img_url
+        });
 
         return categoryId;
     }
@@ -116,7 +120,11 @@ export class EntityBuilder {
     public async createSupplier(): Promise<number> {
         const categoryRepo = this.app.get<Repository<Supplier>>(getRepositoryToken(Supplier));
 
-        const { supplierId } = await categoryRepo.save(supplierTest);
+        const { supplierId } = await categoryRepo.save({
+           name: supplierTest.name,
+           phone: supplierTest.phone,
+           email: supplierTest.email 
+        });
 
         return supplierId;
     }
@@ -124,8 +132,15 @@ export class EntityBuilder {
     public async createProduct(supplierId: number, categoryId: number): Promise<number> {
         const productRepo = this.app.get<Repository<Product>>(getRepositoryToken(Product));
 
-        const {productId} = await productRepo.save({...productTest, supplierId, categoryId});
+        const { productId } = await productRepo.save({ ...productTest, supplierId, categoryId });
 
         return productId;
+    }
+
+    public async createOrder(userId: number): Promise<number> {
+        const orderRepo = this.app.get<Repository<Order>>(getRepositoryToken(Order));
+        const { orderId } = await orderRepo.save({ userId, address: "address"});
+
+        return orderId;
     }
 }
