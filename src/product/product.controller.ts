@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { Role } from "src/common/enums/role.enum";
@@ -15,7 +15,7 @@ export class ProductController {
 
     @Post()
     @Roles(Role.ADMIN)
-    public async create(@Body() createProductDto: CreateProductDto) {
+    public async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
         return await this.productService.createProduct(createProductDto);
     }
 
@@ -25,7 +25,7 @@ export class ProductController {
     }
 
     @Get("/byCategory")
-    public async findByCategory(findByCategoryDto: FindProductByCategoryDto): Promise<Product[]> {
+    public async findByCategory(@Query() findByCategoryDto: FindProductByCategoryDto): Promise<Product[]> {
         return await this.productService.findProductByCategory(findByCategoryDto);
     }
 

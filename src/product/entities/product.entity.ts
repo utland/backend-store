@@ -15,6 +15,7 @@ import { Supplier } from "src/supplier/entities/supplier.entity";
 import { Category } from "src/category/entities/category.entity";
 import { CartProduct } from "src/user/entities/cartProduct.entity";
 import { Review } from "src/review/entities/review.entity";
+import { Exclude } from "class-transformer";
 
 @Entity("product")
 @Check(`"price" > 0`)
@@ -43,6 +44,7 @@ export class Product {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
 
+    @Exclude()
     @DeleteDateColumn({ name: "deleted_at", nullable: true })
     deletedAt: Date;
 

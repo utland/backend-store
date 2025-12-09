@@ -5,59 +5,22 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
 import { Role } from "src/common/enums/role.enum";
-
-const userTest: SignUpDto = {
-    login: "test",
-    address: "test",
-    password: "test",
-    phone: "+000000000",
-    email: "test@gmail.com"
-};
-
-const adminTest: SignUpDto = {
-    login: "admin",
-    address: "test",
-    password: "test",
-    phone: "+000000000",
-    email: "admin@gmail.com"
-};
-
-const moderatorTest: SignUpDto = {
-    login: "moderator",
-    address: "test",
-    password: "test",
-    phone: "+000000000",
-    email: "moderator@gmail.com"
-};
+import { EntityBuilder, ITestPayload } from "./config/entity-builder";
 
 describe("User test", () => {
     let test: TestBuilder;
     let server: any;
-    let tokens: Map<string, string>;
+    let entityBuilder: EntityBuilder;
+    let tokens: Map<string, ITestPayload>;
 
     beforeAll(async () => {
         test = await TestBuilder.create();
         server = test.app.getHttpServer();
-        tokens = new Map();
+        entityBuilder = new EntityBuilder(test.app, server);
     });
 
     beforeEach(async () => {
-        await request(server).post("/auth/register").send(userTest).expect(201);
-        await request(server).post("/auth/register").send(moderatorTest).expect(201);
-        await request(server).post("/auth/register").send(adminTest).expect(201);
-
-        const userRepo = test.app.get<Repository<User>>(getRepositoryToken(User));
-
-        await userRepo.update({ login: adminTest.login }, { role: Role.ADMIN});
-        await userRepo.update({ login: moderatorTest.login }, { role: Role.MODERATOR});
-
-        const userRes = await request(server).post("/auth/login").send(userTest).expect(201);
-        const adminRes = await request(server).post("/auth/login").send(adminTest).expect(201);
-        const moderatorRes = await request(server).post("/auth/login").send(moderatorTest).expect(201);
-
-        tokens.set("user", userRes.body.accessToken);
-        tokens.set("admin", adminRes.body.accessToken);
-        tokens.set("moderator", moderatorRes.body.accessToken);
+        tokens = await entityBuilder.createUsers();
     });
 
     afterEach(async () => {
@@ -70,8 +33,8 @@ describe("User test", () => {
 
     describe("findAll", () => {
         it("should be available for ADMIN and MODERATOR", async () => {
-            const token1 = tokens.get("admin");
-            const token2 = tokens.get("moderator");
+            const token1 = tokens.get("admin")?.token;
+            const token2 = tokens.get("moderator")?.token;
 
             await request(server)
                     .get("/user")
@@ -87,7 +50,7 @@ describe("User test", () => {
         })
 
         it("should be unavailable for USER", async () => {
-            const token = tokens.get("user");
+            const token = tokens.get("user")?.token;
 
             await request(server)
                     .get("/user")
@@ -98,7 +61,7 @@ describe("User test", () => {
 
     describe("findById", () => {
         it("should get cerialized user", async () => {
-            const token = tokens.get("user");
+            const token = tokens.get("user")?.token;
 
             await request(server)
                     .get("/user/2")
@@ -120,13 +83,13 @@ describe("User test", () => {
     })
 
     describe("changePasswd", () => {
-        const changPassDto = {
-            login: "test",
-            oldPass: "test",
-            newPass: "new"
-        }
-
         it("should change password for user", async () => {
+            const changPassDto = {
+                login: tokens.get("user")?.login,
+                oldPass: "test",
+                newPass: "new"
+            }
+
             await request(server)
                     .patch("/user/pass")
                     .send(changPassDto)
@@ -134,12 +97,12 @@ describe("User test", () => {
             
             await request(server)
                     .post("/auth/login")
-                    .send(userTest)
+                    .send({ login: changPassDto.login, password: "test"})
                     .expect(401);
 
             await request(server)
                     .post("/auth/login")
-                    .send({ login: "test", password: "new"})
+                    .send({ login: changPassDto.login, password: "new"})
                     .expect(201)
         })
     })
@@ -152,7 +115,7 @@ describe("User test", () => {
         }
 
         it("should update data for user", async () => {
-            const token = tokens.get("user");
+            const token = tokens.get("user")?.token;
 
             await request(server)
                     .patch("/user")
@@ -175,8 +138,8 @@ describe("User test", () => {
 
     describe("deleteUser", () => {
         it("should be available only for ADMIN", async () => {
-            const token1 = tokens.get("user");
-            const token2 = tokens.get("moderator");
+            const token1 = tokens.get("user")?.token;
+            const token2 = tokens.get("moderator")?.token;
 
             await request(server)
                     .delete("/user/1")
@@ -190,7 +153,7 @@ describe("User test", () => {
         })
 
         it("should softly remove user", async () => {
-            const token = tokens.get("admin");
+            const token = tokens.get("admin")?.token;
 
             await request(server)
                     .delete("/user/1")
@@ -206,31 +169,33 @@ describe("User test", () => {
 
     describe("changeRole", () => {
         it("should be available only for ADMIN", async () => {
-            const token1 = tokens.get("user");
-            const token2 = tokens.get("moderator");
+            const token1 = tokens.get("user")?.token;
+            const token2 = tokens.get("moderator")?.token;
+            const moderatorId = tokens.get("moderator")?.id;
 
             await request(server)
-                    .patch("/user/role/2")
+                    .patch(`/user/role/${moderatorId}`)
                     .set("Authorization", `Bearer ${token1}`)
                     .expect(403);
 
             await request(server)
-                    .patch("/user/role/2")
+                    .patch(`/user/role/${moderatorId}`)
                     .set("Authorization", `Bearer ${token2}`)
                     .expect(403);
         })
 
         it("should change role for user", async () => {
-            const token = tokens.get("admin");
+            const token = tokens.get("admin")?.token;
+            const moderatorId = tokens.get("moderator")?.id;
 
             await request(server)
-                    .patch("/user/role/2")
+                    .patch(`/user/role/${moderatorId}`)
                     .set("Authorization", `Bearer ${token}`)
                     .send({ role: "user" })
                     .expect(200);
 
             await request(server)
-                    .get("/user/2")
+                    .get(`/user/${moderatorId}`)
                     .set("Authorization", `Bearer ${token}`)
                     .expect(200)
                     .expect(res => {

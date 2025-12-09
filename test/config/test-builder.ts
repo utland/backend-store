@@ -49,10 +49,13 @@ export class TestBuilder {
         await this._app.init();
     }
 
-    public async clearDb(): Promise<void> {
+    public async clearDb(skipTables?: string[]): Promise<void> {
         const entities = this.dataSource.entityMetadatas;
         const tables = entities
-        .filter(e => e.tableType !== "view")
+        .filter(e => {
+            return e.tableType !== "view" &&
+            (skipTables ? !skipTables.includes(e.tableName) : true)
+        })
         .map((e) => `"${e.tableName}"`)
         .join(", ");
 
