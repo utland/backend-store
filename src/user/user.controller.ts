@@ -30,6 +30,13 @@ export class UserController {
         return await this.userService.findAll();
     }
 
+    @Get("/token")
+    public async findByToken(
+        @CurrentUserId() userId: number
+    ): Promise<User> {
+        return await this.userService.findUser(userId);
+    }
+
     @Get("/:id")
     public async findById(@Param("id", ParseIntPipe) userId: number): Promise<User> {
         return await this.userService.findUser(userId);
@@ -53,7 +60,7 @@ export class UserController {
     }
 
     @Roles(Role.ADMIN)
-    @Patch("/role")
+    @Patch("/role/:id")
     public async changeRole(
         @Param("id", ParseIntPipe) userId: number,
         @Body() changeRoleDto: ChangeRoleDto

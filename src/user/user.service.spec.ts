@@ -61,12 +61,6 @@ describe("UserService", () => {
 
             await expect(userService.findUser(0)).rejects.toThrow(NotFoundException);
         });
-
-        it("should throw exception if user is not found (by id)", async () => {
-            jest.spyOn(userRepo, "findOne").mockResolvedValueOnce(null);
-
-            await expect(userService.findUser(0)).rejects.toThrow(NotFoundException);
-        });
     });
 
     describe("changeRole", () => {

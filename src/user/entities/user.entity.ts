@@ -44,6 +44,7 @@ export class User {
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;
 
+    @Exclude()
     @DeleteDateColumn({ name: "deleted_at", nullable: true })
     deletedAt: Date;
 
