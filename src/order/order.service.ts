@@ -3,7 +3,7 @@ import {
     Injectable,
     NotFoundException
 } from "@nestjs/common";
-import { DataSource, In, Repository } from "typeorm";
+import { DataSource, In, QueryRunner, Repository } from "typeorm";
 import { Order } from "./entities/order.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -23,6 +23,7 @@ export class OrderService {
 
     public async createOrder(userId: number, createOrderDto: CreateOrderDto): Promise<Order> {
         const { address, orderItems } = createOrderDto;
+
         const queryRunner = this.dataSource.createQueryRunner();
 
         await queryRunner.connect();
@@ -34,14 +35,7 @@ export class OrderService {
                 orderAddress: address
             });
 
-            const idsOfProduct = this.getArrayIds(orderItems);
-            const products = await queryRunner.manager.find(Product, {
-                where: {
-                    productId: In(idsOfProduct)
-                }
-            });
-
-            this.validateProducts(products, idsOfProduct.length);
+            await this.validateProducts(queryRunner, orderItems);
 
             const orderProducts = orderItems.map((item) => {
                 return queryRunner.manager.create(OrderProduct, {
@@ -53,9 +47,8 @@ export class OrderService {
             });
 
             order.orderProducts = orderProducts;
-
             await queryRunner.manager.save(OrderProduct, orderProducts);
-
+            
             await queryRunner.commitTransaction();
 
             return order;
@@ -68,8 +61,19 @@ export class OrderService {
         }
     }
 
-    private validateProducts(products: Product[], reqLenght: number) {
-        if (products.length !== reqLenght) {
+    private async validateProducts(
+        queryRunner: QueryRunner,
+        orderItems: CreateOrderProductDto[],
+    ) {
+        const ids = orderItems.map((e) => e.productId);
+
+        const products = await queryRunner.manager.find(Product, {
+            where: {
+                productId: In(ids)
+            }
+        });
+
+        if (products.length !== ids.length) {
             throw new NotFoundException("One of provided products is not found");
         }
 
@@ -78,10 +82,6 @@ export class OrderService {
                 throw new BadRequestException(`${product.name} is out of stock`);
             }
         }
-    }
-
-    private getArrayIds(orderProducts: CreateOrderProductDto[]): number[] {
-        return orderProducts.map((e) => e.productId);
     }
 
     public async findOrdersByUserId(userId: number): Promise<Order[]> {

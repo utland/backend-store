@@ -1,6 +1,7 @@
 import { NestFactory, Reflector } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
+import { ConstraintExceptionFilter } from "./common/filters/constraint.filter-exception";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -12,6 +13,8 @@ async function bootstrap() {
     );
 
     app.useGlobalInterceptors(new ClassSerializerInterceptor(new Reflector()));
+
+    app.useGlobalFilters(new ConstraintExceptionFilter());
 
     await app.listen(process.env.PORT ?? 3000);
 }

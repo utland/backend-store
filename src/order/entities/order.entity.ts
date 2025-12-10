@@ -7,7 +7,8 @@ import {
     OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
-    DeleteDateColumn
+    DeleteDateColumn,
+    VersionColumn
 } from "typeorm";
 import { OrderProduct } from "./orderProduct.entity";
 import { User } from "src/user/entities/user.entity";
@@ -38,6 +39,9 @@ export class Order {
     @Exclude()
     @DeleteDateColumn({ name: "deleted_at", nullable: true })
     deletedAt: Date;
+
+    @VersionColumn()
+    version: number;
 
     @Column({ name: "user_id" })
     userId: number;

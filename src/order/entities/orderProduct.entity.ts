@@ -1,8 +1,10 @@
-import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, Check } from "typeorm";
 import { Order } from "./order.entity";
 import { Product } from "src/product/entities/product.entity";
 
 @Entity("order_product")
+@Check(`"amount" > 0`)
+@Check(`"price" > 0`)
 export class OrderProduct {
     @PrimaryColumn({ name: "order_id" })
     orderId: number;

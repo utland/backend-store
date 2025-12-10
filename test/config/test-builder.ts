@@ -6,6 +6,7 @@ import { DataSource } from "typeorm";
 import { ClassSerializerInterceptor, INestApplication } from "@nestjs/common";
 import { AppModule } from "../../src/app.module";
 import { Reflector } from "@nestjs/core";
+import { ConstraintExceptionFilter } from "src/common/filters/constraint.filter-exception";
 
 export class TestBuilder {
     private _app: INestApplication;
@@ -45,6 +46,7 @@ export class TestBuilder {
         );
 
         this.app.useGlobalInterceptors(new ClassSerializerInterceptor(new Reflector()));
+        this.app.useGlobalFilters(new ConstraintExceptionFilter());
 
         await this._app.init();
     }

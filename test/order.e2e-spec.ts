@@ -60,20 +60,37 @@ describe("Order test", () => {
                     .expect(201)
         })
 
-        it("should rollback changes if error happened", async () => {
+        it("should rollback changes if error happened (product not-found)", async () => {
             const token = tokens.get("user")?.token;
 
             const orderRepo = test.app.get<Repository<Order>>(getRepositoryToken(Order));
 
-            const categoryId = await entityBuilder.createCategory();
-            const supplierId = await entityBuilder.createSupplier();
-            const productId = await entityBuilder.createProduct(categoryId, supplierId);
+            const createOrderDto: CreateOrderDto = {
+                address: "address",
+                orderItems: [
+                    { productId: 10, amount: 1, price: 100 }
+                ]
+            }
+
+            await request(server)
+                    .post("/order")
+                    .set("Authorization", `Bearer ${token}`)
+                    .send(createOrderDto)
+                    .expect(404);
+            
+            const count = await orderRepo.count();
+            expect(count).toBe(1);       
+        })
+
+        it("should rollback changes if error happened (check constraint)", async () => {
+            const token = tokens.get("user")?.token;
+
+            const orderRepo = test.app.get<Repository<Order>>(getRepositoryToken(Order));
 
             const createOrderDto: CreateOrderDto = {
                 address: "address",
                 orderItems: [
-                    { productId, amount: 1, price: 100 },
-                    { productId, amount: 1, price: 100 }
+                    { productId: 10, amount: -5, price: 0 }
                 ]
             }
 
