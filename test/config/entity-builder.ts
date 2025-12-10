@@ -10,6 +10,7 @@ import { OrderProduct } from "src/order/entities/orderProduct.entity";
 import { Product } from "src/product/entities/product.entity";
 import { Review } from "src/review/entities/review.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
+import { CartProduct } from "src/user/entities/cartProduct.entity";
 import { User } from "src/user/entities/user.entity";
 import request from "supertest";
 import { Repository } from "typeorm";
@@ -166,6 +167,11 @@ export class EntityBuilder {
     public async createOrderProduct(orderId: number, productId: number): Promise<void> {
         const orderProductRepo = this.app.get<Repository<OrderProduct>>(getRepositoryToken(OrderProduct));
         await orderProductRepo.save({ orderId, productId, amount: 1, price: 100})
+    }
+
+    public async createCartProduct(userId: number, productId: number): Promise<void> {
+        const cartRepo = this.app.get<Repository<CartProduct>>(getRepositoryToken(CartProduct));
+        await cartRepo.save({ userId, productId, amount: 1 })
     }
 
     public async createReview(userId: number, productId: number): Promise<number> {

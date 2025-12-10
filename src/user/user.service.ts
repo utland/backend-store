@@ -61,6 +61,23 @@ export class UserService {
         return users;
     }
 
+    public async findPublicUser(userId: number): Promise<User> {
+        const user = await this.userRepo.findOne({
+            where: { userId },
+            select: {
+                userId: true,
+                login: true,
+                imgUrl: true,
+                phone: true,
+                role: true
+            }
+        })
+
+        if (!user) throw new NotFoundException("This user doesn't exist");
+
+        return user;
+    }
+
     public async findUser(userId: number): Promise<User> {
         const user = await this.userRepo.findOne({
             where: { userId },

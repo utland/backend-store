@@ -39,7 +39,7 @@ export class UserController {
 
     @Get("/:id")
     public async findById(@Param("id", ParseIntPipe) userId: number): Promise<User> {
-        return await this.userService.findUser(userId);
+        return await this.userService.findPublicUser(userId);
     }
 
     @Public()

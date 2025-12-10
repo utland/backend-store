@@ -20,21 +20,25 @@ export class CartService {
         });
     }
 
-    public async updateCartProduct(userId: number, amount: number): Promise<CartProduct> {
-        const cartProduct = this.findCartProduct(userId);
+    public async updateCartProduct(
+        userId: number, 
+        updateCartProductDto: UpdateCartProductDto
+    ): Promise<CartProduct> {
+        const { productId, amount } = updateCartProductDto;
+        const cartProduct = await this.findCartProduct(userId, productId);
 
-        return await this.cartProductRepo.save(Object.assign(cartProduct, { amount }));
+        return await this.cartProductRepo.save({ ...cartProduct, amount });
     }
 
-    public async deleteCartProduct(id: number): Promise<void> {
-        const cartProduct = await this.findCartProduct(id);
+    public async deleteCartProduct( userId: number, productId: number): Promise<void> {
+        const cartProduct = await this.findCartProduct(userId, productId);
 
         await this.cartProductRepo.remove(cartProduct);
     }
 
-    private async findCartProduct(id: number): Promise<CartProduct> {
+    private async findCartProduct(userId: number, productId: number): Promise<CartProduct> {
         const cartProduct = await this.cartProductRepo.findOne({
-            where: { userId: id }
+            where: { userId, productId }
         });
 
         if (!cartProduct) throw new NotFoundException("This cartItem doesn't exist");
