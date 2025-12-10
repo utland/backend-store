@@ -45,6 +45,30 @@ describe("OrderController", () => {
         jest.clearAllMocks();
     });
 
+    describe("findOrder", () => {
+        beforeEach(() => {
+            jest.spyOn(orderServiceMock, "findOrder").mockResolvedValueOnce(testOrder as Order);
+        })
+
+        it("should return order if user has ownership", async () => {
+            const order = await orderController.findOrder(false, 0, 0);
+
+            expect(order).toEqual(testOrder);
+        })
+
+        it("should throw exception if user doesn't have ownership", async () => {
+            await expect(orderController.findOrder(false, 1, 0))
+                    .rejects
+                    .toThrow(ForbiddenException);
+        })
+
+        it("should return order if user is ADMIN", async () => {
+            const order = await orderController.findOrder(true, 1, 0);
+
+            expect(order).toEqual(testOrder);
+        })
+    })
+
     describe("updateAddress", () => {
         let updateAddressDto: UpdateOrderAddressDto = {
             orderId: 0,
@@ -95,7 +119,7 @@ describe("OrderController", () => {
         it("should return updatedOrder with new status", async () => {
             jest.spyOn(orderServiceMock, "updateStatus").mockResolvedValueOnce(testOrder as Order);
 
-            const order = await orderController.updateStatus(updateStatusDto, payload);
+            const order = await orderController.updateStatus(updateStatusDto, payload, false);
 
             expect(order).toHaveProperty("status", "cancelled");
         });
@@ -103,13 +127,13 @@ describe("OrderController", () => {
         it("should throw error if user doesn't have ownership", async () => {
             payload.id = 1;
 
-            expect(orderController.updateStatus(updateStatusDto, payload)).rejects.toThrow(ForbiddenException);
+            expect(orderController.updateStatus(updateStatusDto, payload, false)).rejects.toThrow(ForbiddenException);
         });
 
         it("should throw error if user doesn't have access", async () => {
             updateStatusDto.status = OrderStatus.IN_PROCESS;
 
-            expect(orderController.updateStatus(updateStatusDto, payload)).rejects.toThrow(ForbiddenException);
+            expect(orderController.updateStatus(updateStatusDto, payload, false)).rejects.toThrow(ForbiddenException);
         });
 
         it("should update order if user have access", async () => {
@@ -121,7 +145,7 @@ describe("OrderController", () => {
             updateStatusDto.status = OrderStatus.IN_PROCESS;
             payload.role = Role.MODERATOR;
 
-            const order = await orderController.updateStatus(updateStatusDto, payload);
+            const order = await orderController.updateStatus(updateStatusDto, payload, true);
             expect(order).toHaveProperty("status", "in process");
         });
     });

@@ -26,6 +26,7 @@ export class CategoryService {
         const category = await this.categoryRepo.findOne({
             where: { categoryId }
         });
+        
         if (!category) throw new NotFoundException("This category doesn't exist");
 
         return category;

@@ -4,8 +4,6 @@ import { UpdateProductDto } from "./dto/update-product.dto";
 import { Role } from "src/common/enums/role.enum";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { Product } from "./entities/product.entity";
-import { Category } from "src/category/entities/category.entity";
-import { Supplier } from "src/supplier/entities/supplier.entity";
 import { ProductService } from "./product.service";
 import { FindProductByCategoryDto } from "./dto/find-product-by-category.dto";
 

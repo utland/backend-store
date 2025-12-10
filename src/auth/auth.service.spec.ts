@@ -6,7 +6,6 @@ import { Test } from "@nestjs/testing";
 import { Role } from "src/common/enums/role.enum";
 import { User } from "src/user/entities/user.entity";
 import { NotAcceptableException, UnauthorizedException } from "@nestjs/common";
-import { exec } from "child_process";
 import { SignUpDto } from "./dto/sign-up.dto";
 
 describe("AuthService", () => {
@@ -35,7 +34,8 @@ describe("AuthService", () => {
                 {
                     provide: UserService,
                     useValue: {
-                        findByLogin: jest.fn()
+                        findByLogin: jest.fn(),
+                        isUserExist: jest.fn()
                     }
                 },
                 {
@@ -57,32 +57,40 @@ describe("AuthService", () => {
         jest.spyOn(jwtServiceMock, "signAsync").mockResolvedValueOnce("testToken");
     });
 
-    it("should return token and id after successful sign-in", async () => {
-        jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(true);
+    describe("signIn", () => {
+        it("should return token and id after successful sign-in", async () => {
+            jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(true);
+    
+            const res: ISignInReturn = await authService.signIn("login", "testPass");
+    
+            expect(res).toEqual({ id: 0, accessToken: "testToken" });
+        });
+    
+        it("should throw error if password is incorrect", async () => {
+            jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(false);
+    
+            expect(authService.signIn("login", "testPass")).rejects.toThrow(UnauthorizedException);
+        });
+    })
 
-        const res: ISignInReturn = await authService.signIn("login", "testPass");
+    describe("signUp", () => {
+        it("should check if this user exists before creating", async () => {
+            const hashed = "hashedPass";
 
-        expect(res).toEqual({ id: 0, accessToken: "testToken" });
-    });
+            jest.spyOn(passwordServiceMock, "hash").mockResolvedValueOnce(hashed);
+            jest.spyOn(userServiceMock, "isUserExist").mockResolvedValueOnce(true);
+    
+            const mockedSignUpto: SignUpDto = {
+                login: "login",
+                address: "address",
+                password: "password",
+                phone: "phone",
+                email: "email"
+            };
+    
+            expect(authService.signUp(mockedSignUpto)).rejects.toThrow(NotAcceptableException);
+        });
+    })
 
-    it("should throw error if password is incorrect", async () => {
-        jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(false);
 
-        expect(authService.signIn("login", "testPass")).rejects.toThrow(UnauthorizedException);
-    });
-
-    it("should check if this user exists before creating", async () => {
-        const hashed = "hashedPass";
-        jest.spyOn(passwordServiceMock, "hash").mockResolvedValueOnce(hashed);
-
-        const mockedSignUDto: SignUpDto = {
-            login: "login",
-            address: "address",
-            password: "password",
-            phone: "phone",
-            email: "email"
-        };
-
-        expect(authService.signUp(mockedSignUDto)).rejects.toThrow(NotAcceptableException);
-    });
 });

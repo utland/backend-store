@@ -37,20 +37,20 @@ describe("Authorization", () => {
         await request(server).get("/product").expect(401);
     });
 
-    // it("/auth/register", async () => {
-    //     await request(server).post("/auth/register").send(testSignUp).expect(201);
-    // });
+    it("/auth/register", async () => {
+        await request(server).post("/auth/register").send(testSignUp).expect(201);
+    });
 
-    // it("/auth/login", async () => {
-    //     await request(server).post("/auth/register").send(testSignUp);
+    it("/auth/login", async () => {
+        await request(server).post("/auth/register").send(testSignUp);
 
-    //     await request(server)
-    //         .post("/auth/login")
-    //         .send(testSignIn)
-    //         .expect(201)
-    //         .expect((res) => {
-    //             expect(res.body.accessToken).toBeDefined();
-    //             expect(res.body.id).toBeDefined();
-    //         });
-    // });
+        await request(server)
+            .post("/auth/login")
+            .send(testSignIn)
+            .expect(201)
+            .expect((res) => {
+                expect(res.body.accessToken).toBeDefined();
+                expect(res.body.id).toBeDefined();
+            });
+    });
 });

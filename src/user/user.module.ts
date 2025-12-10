@@ -5,7 +5,6 @@ import { User } from "./entities/user.entity";
 import { UserController } from "./user.controller";
 import { CartController } from "./cart/cart.controller";
 import { CartService } from "./cart/cart.service";
-import { PasswordModule } from "src/password/password.module";
 import { CartProduct } from "./entities/cartProduct.entity";
 import { PasswordService } from "src/password/password.service";
 

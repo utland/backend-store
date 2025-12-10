@@ -1,8 +1,6 @@
 import {
     BadRequestException,
-    ForbiddenException,
     Injectable,
-    NotAcceptableException,
     NotFoundException
 } from "@nestjs/common";
 import { DataSource, In, Repository } from "typeorm";
@@ -10,9 +8,7 @@ import { Order } from "./entities/order.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { OrderProduct } from "./entities/orderProduct.entity";
-import { UpdateOrderStatusDto } from "./dto/update-order-status.dto";
 import { OrderStatus } from "src/common/enums/status.enum";
-import { ProductService } from "src/product/product.service";
 import { Product } from "src/product/entities/product.entity";
 import { CreateOrderProductDto } from "./dto/create-order-product.dto";
 

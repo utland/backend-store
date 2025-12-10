@@ -1,6 +1,4 @@
-import { Type } from "class-transformer";
 import { IsIn, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { CreateDateColumn } from "typeorm";
 
 export class CreateReviewDto {
     @IsNotEmpty()
