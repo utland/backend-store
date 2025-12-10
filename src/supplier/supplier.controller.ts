@@ -14,7 +14,7 @@ export class SupplierController {
 
     @Get("sales")
     @Roles(Role.ADMIN)
-    public async getInfoAboutSAles(@Body() supplierSalesDto: SupplierSalesDto): Promise<SupplierSales[]> {
+    public async getInfoAboutSales(@Body() supplierSalesDto: SupplierSalesDto): Promise<SupplierSales[]> {
         return await this.supplierService.getSupplierSalesForMonth(supplierSalesDto);
     }
 

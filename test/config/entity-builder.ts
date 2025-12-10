@@ -3,8 +3,12 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { SignUpDto } from "src/auth/dto/sign-up.dto";
 import { Category } from "src/category/entities/category.entity";
 import { Role } from "src/common/enums/role.enum";
+import { OrderStatus } from "src/common/enums/status.enum";
+import { CreateOrderProductDto } from "src/order/dto/create-order-product.dto";
 import { Order } from "src/order/entities/order.entity";
+import { OrderProduct } from "src/order/entities/orderProduct.entity";
 import { Product } from "src/product/entities/product.entity";
+import { Review } from "src/review/entities/review.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
 import { User } from "src/user/entities/user.entity";
 import request from "supertest";
@@ -28,11 +32,41 @@ export const categoryTest = {
     img_url: "img_url"
 }
 
+export const reviewTest = {
+    evaluation: 4,
+    comment: "comment"
+}
+
 export interface ITestPayload {
     token: string,
     id: number,
     login: string
 }
+
+export const userTest: SignUpDto = {
+    login: `user`,
+    address: "test",
+    password: "test",
+    phone: "+000000000",
+    email: `useremail@gmail.com`
+};
+
+export const adminTest: SignUpDto = {
+    login: `admin`,
+    address: "test",
+    password: "test",
+    phone: "+000000000",
+    email: `adminemail@gmail.com`
+};
+
+
+export const moderatorTest: SignUpDto = {
+    login: `moderator`,
+    address: "test",
+    password: "test",
+    phone: "+000000000",
+    email: `moderatoremail@gmail.com`
+};
 
 export class EntityBuilder {
     private readonly server: any;
@@ -44,32 +78,6 @@ export class EntityBuilder {
     }
 
     public async createUsers(): Promise<Map<string, ITestPayload>> {
-        const randomNumber = Math.floor(Math.random() * 10000);
-
-        const userTest: SignUpDto = {
-            login: `user-${randomNumber}`,
-            address: "test",
-            password: "test",
-            phone: "+000000000",
-            email: `useremail${randomNumber}@gmail.com`
-        };
-
-        const adminTest: SignUpDto = {
-            login: `admin-${randomNumber}`,
-            address: "test",
-            password: "test",
-            phone: "+000000000",
-            email: `adminemail${randomNumber}@gmail.com`
-        };
-
-        const moderatorTest: SignUpDto = {
-            login: `moderator-${randomNumber}`,
-            address: "test",
-            password: "test",
-            phone: "+000000000",
-            email: `moderatoremail${randomNumber}@gmail.com`
-        };
-
         const tokens = new Map<string, ITestPayload>;
 
         await request(this.server).post("/auth/register").send(userTest).expect(201);
@@ -106,6 +114,13 @@ export class EntityBuilder {
         return tokens;
     }
 
+    public async createUser(): Promise<ITestPayload> {
+        await request(this.server).post("/auth/register").send(userTest).expect(201);
+        const userRes = await request(this.server).post("/auth/login").send(userTest).expect(201);
+
+        return { token: userRes.body.accessToken, id: userRes.body.id, login: userTest.login };
+    }
+
     public async createCategory(): Promise<number> {
         const categoryRepo = this.app.get<Repository<Category>>(getRepositoryToken(Category));
 
@@ -137,10 +152,27 @@ export class EntityBuilder {
         return productId;
     }
 
-    public async createOrder(userId: number): Promise<number> {
+    public async createOrder(userId: number, status?: OrderStatus): Promise<number> {
         const orderRepo = this.app.get<Repository<Order>>(getRepositoryToken(Order));
         const { orderId } = await orderRepo.save({ userId, address: "address"});
 
+        if (status) {
+            await orderRepo.update({ orderId }, { status });
+        }
+
         return orderId;
+    }
+
+    public async createOrderProduct(orderId: number, productId: number): Promise<void> {
+        const orderProductRepo = this.app.get<Repository<OrderProduct>>(getRepositoryToken(OrderProduct));
+        await orderProductRepo.save({ orderId, productId, amount: 1, price: 100})
+    }
+
+    public async createReview(userId: number, productId: number): Promise<number> {
+        const reviewRepo = this.app.get<Repository<Review>>(getRepositoryToken(Review));
+
+        const { reviewId } = await reviewRepo.save({ ...reviewTest, userId, productId });
+
+        return reviewId;
     }
 }

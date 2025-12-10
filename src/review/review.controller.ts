@@ -17,8 +17,8 @@ export class ReviewController {
     }
 
     @Get("/:id")
-    public async findByProductId(selectReviewsByDto: SelectReviewsByDto): Promise<Review[]> {
-        return await this.reviewService.findReviewsByProductId(selectReviewsByDto);
+    public async findById(@Param("id") reviewId: number): Promise<Review> {
+        return await this.reviewService.findReview(reviewId);
     }
 
     @Patch("/:id")
