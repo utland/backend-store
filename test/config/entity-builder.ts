@@ -19,33 +19,34 @@ import { UUID } from "typeorm/driver/mongodb/bson.typings.js";
 export const productTest = {
     name: "product",
     description: "desc",
-    price: 100
-}
+    price: 100,
+    inStock: 1
+};
 
 export const supplierTest = {
     name: "supplier",
     phone: "+0000000",
     email: "example@gmail.com"
-}
+};
 
 export const categoryTest = {
     name: "category",
     img_url: "img_url"
-}
+};
 
 export const reviewTest = {
     evaluation: 4,
     comment: "comment"
-}
+};
 
 export interface ITestPayload {
-    token: string,
-    id: number,
-    login: string
+    token: string;
+    id: number;
+    login: string;
 }
 
 export const userTest: SignUpDto = {
-    login: `user`,
+    login: "user",
     address: "test",
     password: "test",
     phone: "+000000000",
@@ -59,7 +60,6 @@ export const adminTest: SignUpDto = {
     phone: "+000000000",
     email: `adminemail@gmail.com`
 };
-
 
 export const moderatorTest: SignUpDto = {
     login: `moderator`,
@@ -79,7 +79,7 @@ export class EntityBuilder {
     }
 
     public async createUsers(): Promise<Map<string, ITestPayload>> {
-        const tokens = new Map<string, ITestPayload>;
+        const tokens = new Map<string, ITestPayload>();
 
         await request(this.server).post("/auth/register").send(userTest).expect(201);
         await request(this.server).post("/auth/register").send(adminTest).expect(201);
@@ -87,26 +87,26 @@ export class EntityBuilder {
 
         const userRepo = this.app.get<Repository<User>>(getRepositoryToken(User));
 
-        await userRepo.update({ login: adminTest.login }, { role: Role.ADMIN});
-        await userRepo.update({ login: moderatorTest.login }, { role: Role.MODERATOR});
+        await userRepo.update({ login: adminTest.login }, { role: Role.ADMIN });
+        await userRepo.update({ login: moderatorTest.login }, { role: Role.MODERATOR });
 
         const userRes = await request(this.server).post("/auth/login").send(userTest).expect(201);
         const adminRes = await request(this.server).post("/auth/login").send(adminTest).expect(201);
         const moderatorRes = await request(this.server).post("/auth/login").send(moderatorTest).expect(201);
 
-        tokens.set("user", { 
+        tokens.set("user", {
             token: userRes.body.accessToken,
             id: userRes.body.id,
             login: userTest.login
         });
 
-        tokens.set("admin", { 
+        tokens.set("admin", {
             token: adminRes.body.accessToken,
             id: adminRes.body.id,
             login: adminTest.login
         });
 
-        tokens.set("moderator", { 
+        tokens.set("moderator", {
             token: moderatorRes.body.accessToken,
             id: moderatorRes.body.id,
             login: moderatorTest.login
@@ -116,8 +116,16 @@ export class EntityBuilder {
     }
 
     public async createUser(): Promise<ITestPayload> {
-        await request(this.server).post("/auth/register").send(userTest).expect(201);
-        const userRes = await request(this.server).post("/auth/login").send(userTest).expect(201);
+        const randomNumber = Math.floor(Math.random() * 1000);
+
+        const newUser = {
+            ...userTest,
+            login: `user-${randomNumber}`,
+            email: `email${randomNumber}@gmail.com`
+        };
+
+        await request(this.server).post("/auth/register").send(newUser).expect(201);
+        const userRes = await request(this.server).post("/auth/login").send(newUser).expect(201);
 
         return { token: userRes.body.accessToken, id: userRes.body.id, login: userTest.login };
     }
@@ -137,25 +145,30 @@ export class EntityBuilder {
         const categoryRepo = this.app.get<Repository<Supplier>>(getRepositoryToken(Supplier));
 
         const { supplierId } = await categoryRepo.save({
-           name: supplierTest.name,
-           phone: supplierTest.phone,
-           email: supplierTest.email 
+            name: supplierTest.name,
+            phone: supplierTest.phone,
+            email: supplierTest.email
         });
 
         return supplierId;
     }
 
-    public async createProduct(supplierId: number, categoryId: number): Promise<number> {
+    public async createProduct(supplierId: number, categoryId: number, inStock?: number): Promise<number> {
         const productRepo = this.app.get<Repository<Product>>(getRepositoryToken(Product));
 
-        const { productId } = await productRepo.save({ ...productTest, supplierId, categoryId });
+        const { productId } = await productRepo.save({
+            ...productTest,
+            supplierId,
+            categoryId,
+            inStock: inStock ? inStock : productTest.inStock
+        });
 
         return productId;
     }
 
     public async createOrder(userId: number, status?: OrderStatus): Promise<number> {
         const orderRepo = this.app.get<Repository<Order>>(getRepositoryToken(Order));
-        const { orderId } = await orderRepo.save({ userId, address: "address"});
+        const { orderId } = await orderRepo.save({ userId, address: "address" });
 
         if (status) {
             await orderRepo.update({ orderId }, { status });
@@ -166,12 +179,12 @@ export class EntityBuilder {
 
     public async createOrderProduct(orderId: number, productId: number): Promise<void> {
         const orderProductRepo = this.app.get<Repository<OrderProduct>>(getRepositoryToken(OrderProduct));
-        await orderProductRepo.save({ orderId, productId, amount: 1, price: 100})
+        await orderProductRepo.save({ orderId, productId, amount: 1, price: 100 });
     }
 
     public async createCartProduct(userId: number, productId: number): Promise<void> {
         const cartRepo = this.app.get<Repository<CartProduct>>(getRepositoryToken(CartProduct));
-        await cartRepo.save({ userId, productId, amount: 1 })
+        await cartRepo.save({ userId, productId, amount: 1 });
     }
 
     public async createReview(userId: number, productId: number): Promise<number> {

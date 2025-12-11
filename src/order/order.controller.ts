@@ -49,7 +49,6 @@ export class OrderController {
         @CurrentUserId() userId: number,
         @Param("id", ParseIntPipe) orderId: number
     ): Promise<Order> {
-
         const order = await this.orderService.findOrder(orderId);
 
         if (!isAdmin) {
@@ -72,7 +71,7 @@ export class OrderController {
         }
 
         const order = await this.orderService.findOrder(orderId);
-        
+
         if (!isAdmin) {
             this.checkOwnership(order, user.id);
         }

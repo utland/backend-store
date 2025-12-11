@@ -60,18 +60,18 @@ describe("AuthService", () => {
     describe("signIn", () => {
         it("should return token and id after successful sign-in", async () => {
             jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(true);
-    
+
             const res: ISignInReturn = await authService.signIn("login", "testPass");
-    
+
             expect(res).toEqual({ id: 0, accessToken: "testToken" });
         });
-    
+
         it("should throw error if password is incorrect", async () => {
             jest.spyOn(passwordServiceMock, "verify").mockResolvedValueOnce(false);
-    
+
             expect(authService.signIn("login", "testPass")).rejects.toThrow(UnauthorizedException);
         });
-    })
+    });
 
     describe("signUp", () => {
         it("should check if this user exists before creating", async () => {
@@ -79,7 +79,7 @@ describe("AuthService", () => {
 
             jest.spyOn(passwordServiceMock, "hash").mockResolvedValueOnce(hashed);
             jest.spyOn(userServiceMock, "isUserExist").mockResolvedValueOnce(true);
-    
+
             const mockedSignUpto: SignUpDto = {
                 login: "login",
                 address: "address",
@@ -87,10 +87,8 @@ describe("AuthService", () => {
                 phone: "phone",
                 email: "email"
             };
-    
+
             expect(authService.signUp(mockedSignUpto)).rejects.toThrow(NotAcceptableException);
         });
-    })
-
-
+    });
 });

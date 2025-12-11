@@ -40,7 +40,7 @@ export class Order {
     @DeleteDateColumn({ name: "deleted_at", nullable: true })
     deletedAt: Date;
 
-    @VersionColumn()
+    @VersionColumn({ default: 1 })
     version: number;
 
     @Column({ name: "user_id" })

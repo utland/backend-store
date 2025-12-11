@@ -1,8 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException
-} from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { DataSource, In, QueryRunner, Repository } from "typeorm";
 import { Order } from "./entities/order.entity";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -11,6 +7,7 @@ import { OrderProduct } from "./entities/orderProduct.entity";
 import { OrderStatus } from "src/common/enums/status.enum";
 import { Product } from "src/product/entities/product.entity";
 import { CreateOrderProductDto } from "./dto/create-order-product.dto";
+import { retry } from "rxjs";
 
 @Injectable()
 export class OrderService {
@@ -35,7 +32,25 @@ export class OrderService {
                 orderAddress: address
             });
 
-            await this.validateProducts(queryRunner, orderItems);
+            const ids = orderItems.map((e) => e.productId);
+            const products = await queryRunner.manager.find(Product, {
+                where: { productId: In(ids) },
+                lock: { mode: "pessimistic_write" }
+            });
+
+            if (products.length !== ids.length) {
+                throw new NotFoundException("One of provided products is not found");
+            }
+
+            for (let product of products) {
+                product.inStock -= this.getAmount(orderItems, product.productId);
+
+                if (product.inStock < 0) {
+                    throw new ConflictException("Product is out of stock");
+                }
+            }
+
+            await queryRunner.manager.save(Product, products);
 
             const orderProducts = orderItems.map((item) => {
                 return queryRunner.manager.create(OrderProduct, {
@@ -48,7 +63,7 @@ export class OrderService {
 
             order.orderProducts = orderProducts;
             await queryRunner.manager.save(OrderProduct, orderProducts);
-            
+
             await queryRunner.commitTransaction();
 
             return order;
@@ -58,29 +73,6 @@ export class OrderService {
             throw error;
         } finally {
             await queryRunner.release();
-        }
-    }
-
-    private async validateProducts(
-        queryRunner: QueryRunner,
-        orderItems: CreateOrderProductDto[],
-    ) {
-        const ids = orderItems.map((e) => e.productId);
-
-        const products = await queryRunner.manager.find(Product, {
-            where: {
-                productId: In(ids)
-            }
-        });
-
-        if (products.length !== ids.length) {
-            throw new NotFoundException("One of provided products is not found");
-        }
-
-        for (let product of products) {
-            if (!product.isInStock) {
-                throw new BadRequestException(`${product.name} is out of stock`);
-            }
         }
     }
 
@@ -95,13 +87,17 @@ export class OrderService {
     }
 
     public async findAll(): Promise<Order[]> {
-        const orders = await this.orderRepo.find();
+        const orders = await this.orderRepo.find({ relations: ["orderProducts.product"] });
 
         return orders;
     }
 
     public async findOrder(orderId: number): Promise<Order> {
-        const order = await this.orderRepo.findOne({ where: { orderId } });
+        const order = await this.orderRepo.findOne({
+            where: { orderId },
+            relations: ["orderProducts.product"]
+        });
+
         if (!order) throw new NotFoundException("This order is not found");
 
         return order;
@@ -112,10 +108,42 @@ export class OrderService {
             throw new BadRequestException("This order is closed for updates");
         }
 
-        order.status = status;
-        const updatedOrder = await this.orderRepo.save(order);
+        const queryRunner = this.dataSource.createQueryRunner();
 
-        return updatedOrder;
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            const items = order.orderProducts;
+
+            const ids = items.map((item) => item.productId);
+            const products = await queryRunner.manager.find(Product, {
+                where: {
+                    productId: In(ids)
+                }
+            });
+
+            if (status === OrderStatus.CANCELLED) {
+                for (let product of products) {
+                    product.inStock += this.getAmount(items, product.productId);
+                }
+
+                await queryRunner.manager.save(Product, products);
+            }
+
+            order.status = status;
+            const updatedOrder = await queryRunner.manager.save(Order, order);
+
+            await queryRunner.commitTransaction();
+
+            return updatedOrder;
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 
     public async updateAddress(order: Order, address: string): Promise<Order> {
@@ -137,5 +165,13 @@ export class OrderService {
         }
 
         await this.orderRepo.softRemove(order);
+    }
+
+    private getAmount(items: OrderProduct[] | CreateOrderProductDto[], productId: number): number {
+        for (let item of items) {
+            if (productId === item.productId) return item.amount;
+        }
+
+        return 0;
     }
 }

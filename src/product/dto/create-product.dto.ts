@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { PrimaryGeneratedColumn } from "typeorm";
 
 export class CreateProductDto {
@@ -21,4 +21,8 @@ export class CreateProductDto {
     @IsNotEmpty()
     @IsNumber()
     categoryId: number;
+
+    @IsOptional()
+    @IsNumber()
+    inStock: number;
 }

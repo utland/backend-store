@@ -4,8 +4,9 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { DataSource, Repository } from "typeorm";
 import { OrderStatus } from "src/common/enums/status.enum";
 import { Order } from "./entities/order.entity";
-import { BadRequestException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { CreateOrderDto } from "./dto/create-order.dto";
+import { OrderProduct } from "./entities/orderProduct.entity";
 
 describe("OrderService", () => {
     let orderService: OrderService;
@@ -28,7 +29,11 @@ describe("OrderService", () => {
         orderId: 0,
         userId: 0,
         status: OrderStatus.WAITING,
-        orderAddress: "address"
+        orderAddress: "address",
+        orderProducts: [
+            { orderId: 0, productId: 0, amount: 1 },
+            { orderId: 0, productId: 1, amount: 10 }
+        ]
     };
 
     beforeEach(async () => {
@@ -72,9 +77,7 @@ describe("OrderService", () => {
 
     describe("createOrder", () => {
         beforeEach(() => {
-            queryRunnerMock.manager.find.mockResolvedValue([
-                { productId: 0, isInStock: true, name: "test" }
-            ]);
+            queryRunnerMock.manager.find.mockResolvedValue([{ productId: 0, inStock: 1, name: "test" }]);
 
             queryRunnerMock.manager.create.mockResolvedValue({});
 
@@ -83,9 +86,7 @@ describe("OrderService", () => {
 
         const createOrderDto: CreateOrderDto = {
             address: "",
-            orderItems: [
-                { productId: 0, amount: 0, price: 0 },
-            ]
+            orderItems: [{ productId: 0, amount: 1, price: 0 }]
         };
 
         it("should throw exception if provided product is absent", async () => {
@@ -93,22 +94,18 @@ describe("OrderService", () => {
                 address: "",
                 orderItems: [
                     { productId: 0, amount: 0, price: 0 },
-                    { productId: 1, amount: 0, price: 0 },
+                    { productId: 1, amount: 0, price: 0 }
                 ]
-            }
+            };
 
-            await expect(orderService.createOrder(0, testDto)).rejects.toThrow(
-                NotFoundException
-            );
+            await expect(orderService.createOrder(0, testDto)).rejects.toThrow(NotFoundException);
         });
 
-        it("should throw exception if provided product is out of stock", async () => {
-            queryRunnerMock.manager.find.mockResolvedValue([
-                { productId: 0, isInStock: false, name: "test" },
-            ]);
+        it("should throw exception if inStock =< 0", async () => {
+            queryRunnerMock.manager.find.mockResolvedValue([{ productId: 0, inStock: 0, name: "test" }]);
 
             await expect(orderService.createOrder(0, createOrderDto as CreateOrderDto)).rejects.toThrow(
-                BadRequestException
+                ConflictException
             );
         });
 
@@ -123,40 +120,54 @@ describe("OrderService", () => {
     describe("findOrder", () => {
         it("should throw exception if order is not found", async () => {
             jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(null);
-    
+
             await expect(orderService.findOrder(0)).rejects.toThrow(NotFoundException);
         });
-    
+
         it("should return order if it is found", async () => {
             jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(testOrder as Order);
-    
+
             const order = await orderService.findOrder(0);
-    
+
             expect(order).toEqual(testOrder);
         });
-    })
+    });
 
     describe("updateStatus", () => {
+        beforeEach(async () => {
+            queryRunnerMock.manager.find.mockResolvedValue([
+                { productId: 0, inStock: 4 },
+                { productId: 1, inStock: 9 }
+            ]);
+        });
+
         it("should throw exception if order is completed", async () => {
             await expect(
-                orderService.updateStatus({ ...testOrder, status: OrderStatus.COMPLETED } as Order, OrderStatus.COMPLETED)
+                orderService.updateStatus(
+                    { ...testOrder, status: OrderStatus.COMPLETED } as Order,
+                    OrderStatus.COMPLETED
+                )
             ).rejects.toThrow(BadRequestException);
         });
-    
+
         it("should throw exception if order is cancelled", async () => {
             await expect(
-                orderService.updateStatus({ ...testOrder, status: OrderStatus.CANCELLED } as Order, OrderStatus.COMPLETED)
+                orderService.updateStatus(
+                    { ...testOrder, status: OrderStatus.CANCELLED } as Order,
+                    OrderStatus.COMPLETED
+                )
             ).rejects.toThrow(BadRequestException);
         });
-    
+
         it("should return updated order if order is not closed", async () => {
-            jest.spyOn(orderRepo, "save").mockResolvedValueOnce(testOrder as Order);
-    
-            const order = await orderService.updateStatus(testOrder as Order, OrderStatus.CANCELLED);
-    
-            expect(order).toEqual(testOrder);
+            const orderDto = { ...testOrder, status: OrderStatus.CANCELLED };
+            queryRunnerMock.manager.save.mockResolvedValue(orderDto as Order);
+
+            const order = await orderService.updateStatus({ ...testOrder } as Order, OrderStatus.CANCELLED);
+
+            expect(order).toEqual(orderDto);
         });
-    })
+    });
 
     describe("deleteOrder", () => {
         it("should throw exception if order is already deleted", async () => {
@@ -164,8 +175,8 @@ describe("OrderService", () => {
                 ...testOrder,
                 deletedAt: new Date()
             } as Order);
-    
+
             await expect(orderService.deleteOrder(0)).rejects.toThrow(BadRequestException);
         });
-    })
+    });
 });

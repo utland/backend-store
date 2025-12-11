@@ -20,17 +20,14 @@ export class CartService {
         });
     }
 
-    public async updateCartProduct(
-        userId: number, 
-        updateCartProductDto: UpdateCartProductDto
-    ): Promise<CartProduct> {
+    public async updateCartProduct(userId: number, updateCartProductDto: UpdateCartProductDto): Promise<CartProduct> {
         const { productId, amount } = updateCartProductDto;
         const cartProduct = await this.findCartProduct(userId, productId);
 
         return await this.cartProductRepo.save({ ...cartProduct, amount });
     }
 
-    public async deleteCartProduct( userId: number, productId: number): Promise<void> {
+    public async deleteCartProduct(userId: number, productId: number): Promise<void> {
         const cartProduct = await this.findCartProduct(userId, productId);
 
         await this.cartProductRepo.remove(cartProduct);

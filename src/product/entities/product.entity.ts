@@ -19,6 +19,7 @@ import { Exclude } from "class-transformer";
 
 @Entity("product")
 @Check(`"price" > 0`)
+@Check(`"in_stock" >= 0`)
 export class Product {
     @PrimaryGeneratedColumn({ name: "product_id" })
     productId: number;
@@ -35,8 +36,8 @@ export class Product {
     @Column({ name: "img_url", type: "text", nullable: true })
     imgUrl: string;
 
-    @Column({ name: "is_stock", type: "boolean", default: true })
-    isInStock: boolean;
+    @Column({ name: "in_stock", type: "integer", default: 0 })
+    inStock: number;
 
     @CreateDateColumn({ name: "created_at" })
     createdAt: Date;

@@ -9,20 +9,19 @@ export class ConstraintExceptionFilter implements ExceptionFilter {
     catch(exception: QueryFailedError, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         this.response = ctx.getResponse<Response>();
-        
+
         const code = (exception as any).driverError.code;
-        
-        if (code === '23505') this.send(409, exception.message);
-        
+
+        if (code === "23505") this.send(409, exception.message);
+
         this.send(400, exception.message);
     }
 
     private send(status: number, message: string) {
-        this.response.status(status).json({ 
-            statusCode: status, 
+        this.response.status(status).json({
+            statusCode: status,
             message,
             timestamp: new Date().toISOString()
         });
     }
-
 }

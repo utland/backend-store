@@ -54,12 +54,11 @@ export class TestBuilder {
     public async clearDb(skipTables?: string[]): Promise<void> {
         const entities = this.dataSource.entityMetadatas;
         const tables = entities
-        .filter(e => {
-            return e.tableType !== "view" &&
-            (skipTables ? !skipTables.includes(e.tableName) : true)
-        })
-        .map((e) => `"${e.tableName}"`)
-        .join(", ");
+            .filter((e) => {
+                return e.tableType !== "view" && (skipTables ? !skipTables.includes(e.tableName) : true);
+            })
+            .map((e) => `"${e.tableName}"`)
+            .join(", ");
 
         await this.dataSource.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE;`);
     }

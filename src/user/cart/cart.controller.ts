@@ -10,10 +10,7 @@ export class CartController {
     constructor(private readonly cartService: CartService) {}
 
     @Post("/:id")
-    public async addCartProduct(
-        @Param("id") productId: number, 
-        @CurrentUserId() userId: number
-    ): Promise<CartProduct> {
+    public async addCartProduct(@Param("id") productId: number, @CurrentUserId() userId: number): Promise<CartProduct> {
         return await this.cartService.addCartProduct(userId, productId);
     }
 

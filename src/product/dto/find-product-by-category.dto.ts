@@ -19,6 +19,6 @@ export class FindProductByCategoryDto {
 
     @IsNotEmpty()
     @IsBoolean()
-    @Transform(({ value }) => value === 'true' || value === true)
+    @Transform(({ value }) => value === "true" || value === true)
     isInStock: boolean;
 }

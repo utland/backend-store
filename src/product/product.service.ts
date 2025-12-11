@@ -3,7 +3,7 @@ import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
-import { Repository } from "typeorm";
+import { Equal, MoreThan, Repository } from "typeorm";
 import { FindProductByCategoryDto } from "./dto/find-product-by-category.dto";
 
 @Injectable()
@@ -14,15 +14,7 @@ export class ProductService {
     ) {}
 
     public async createProduct(createProductDto: CreateProductDto): Promise<Product> {
-        const { name, description, price, supplierId, categoryId } = createProductDto;
-
-        const product = this.productRepo.create({
-            name,
-            description,
-            price,
-            categoryId,
-            supplierId
-        });
+        const product = this.productRepo.create(createProductDto);
 
         return await this.productRepo.save(product);
     }
@@ -37,7 +29,7 @@ export class ProductService {
         const { orderBy, categoryId, isInStock } = findByDto;
 
         const products = await this.productRepo.find({
-            where: { categoryId, isInStock },
+            where: { categoryId, inStock: isInStock ? MoreThan(0) : Equal(0) },
             relations: { supplier: true },
             order: { [orderBy]: "DESC" }
         });

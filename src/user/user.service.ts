@@ -71,7 +71,7 @@ export class UserService {
                 phone: true,
                 role: true
             }
-        })
+        });
 
         if (!user) throw new NotFoundException("This user doesn't exist");
 

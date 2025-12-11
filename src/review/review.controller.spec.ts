@@ -47,36 +47,37 @@ describe("ReviewController", () => {
         it("should throw exception if user doenst have access to update review", async () => {
             await expect(reviewController.update(0, updateDto, 1)).rejects.toThrow(ForbiddenException);
         });
-        
+
         it("should update review successfully", async () => {
-            jest.spyOn(reviewService, "updateReview").mockResolvedValueOnce(Object.assign(testReview, updateDto) as Review);
-    
+            jest.spyOn(reviewService, "updateReview").mockResolvedValueOnce(
+                Object.assign(testReview, updateDto) as Review
+            );
+
             const review = await reviewController.update(0, updateDto, 0);
-    
+
             expect(review).toEqual(Object.assign(testReview, updateDto));
         });
-    })
+    });
 
     describe("removeReview", () => {
         it("should throw exception if user doenst have access to delete review", async () => {
             await expect(reviewController.remove(0, 1, false)).rejects.toThrow(ForbiddenException);
         });
-    
+
         it("should remove review if user is ADMIN", async () => {
             const saveSpy = jest.spyOn(reviewService, "removeReview");
-    
+
             await reviewController.remove(1, 0, true);
-    
+
             expect(saveSpy).toHaveBeenCalled();
         });
-    
+
         it("should remove review successfully", async () => {
             const saveSpy = jest.spyOn(reviewService, "removeReview");
-    
+
             await reviewController.remove(0, 0, true);
-    
+
             expect(saveSpy).toHaveBeenCalled();
         });
-    })
-
+    });
 });

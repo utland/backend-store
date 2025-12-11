@@ -48,26 +48,24 @@ describe("OrderController", () => {
     describe("findOrder", () => {
         beforeEach(() => {
             jest.spyOn(orderServiceMock, "findOrder").mockResolvedValueOnce(testOrder as Order);
-        })
+        });
 
         it("should return order if user has ownership", async () => {
             const order = await orderController.findOrder(false, 0, 0);
 
             expect(order).toEqual(testOrder);
-        })
+        });
 
         it("should throw exception if user doesn't have ownership", async () => {
-            await expect(orderController.findOrder(false, 1, 0))
-                    .rejects
-                    .toThrow(ForbiddenException);
-        })
+            await expect(orderController.findOrder(false, 1, 0)).rejects.toThrow(ForbiddenException);
+        });
 
         it("should return order if user is ADMIN", async () => {
             const order = await orderController.findOrder(true, 1, 0);
 
             expect(order).toEqual(testOrder);
-        })
-    })
+        });
+    });
 
     describe("updateAddress", () => {
         let updateAddressDto: UpdateOrderAddressDto = {

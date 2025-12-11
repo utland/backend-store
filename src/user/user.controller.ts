@@ -31,9 +31,7 @@ export class UserController {
     }
 
     @Get("/token")
-    public async findByToken(
-        @CurrentUserId() userId: number
-    ): Promise<User> {
+    public async findByToken(@CurrentUserId() userId: number): Promise<User> {
         return await this.userService.findUser(userId);
     }
 
