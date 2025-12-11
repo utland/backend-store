@@ -8,7 +8,7 @@ export class Category {
     @PrimaryGeneratedColumn({ name: "category_id" })
     categoryId: number;
 
-    @Column({ type: "text", nullable: true })
+    @Column({ type: "text" })
     img_url: string;
 
     @Column({ length: 20 })

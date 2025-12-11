@@ -168,7 +168,7 @@ export class EntityBuilder {
 
     public async createOrder(userId: number, status?: OrderStatus): Promise<number> {
         const orderRepo = this.app.get<Repository<Order>>(getRepositoryToken(Order));
-        const { orderId } = await orderRepo.save({ userId, address: "address" });
+        const { orderId } = await orderRepo.save({ userId, orderAddress: "address" });
 
         if (status) {
             await orderRepo.update({ orderId }, { status });

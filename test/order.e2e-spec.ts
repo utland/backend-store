@@ -6,10 +6,7 @@ import { CreateOrderDto } from "src/order/dto/create-order.dto";
 import { Repository } from "typeorm";
 import { Order } from "src/order/entities/order.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { exec } from "child_process";
 import { OrderStatus } from "src/common/enums/status.enum";
-import { Test } from "@nestjs/testing";
-import TestAgent from "supertest/lib/agent";
 import { OrderProduct } from "src/order/entities/orderProduct.entity";
 
 describe("Order test", () => {

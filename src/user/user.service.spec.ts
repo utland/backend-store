@@ -7,6 +7,7 @@ import { Role } from "src/common/enums/role.enum";
 import { BadRequestException, NotAcceptableException, NotFoundException } from "@nestjs/common";
 import { PasswordService } from "src/password/password.service";
 import { ChangePassDto } from "./dto/change-pass.dto";
+import { DataSource } from "typeorm";
 
 describe("UserService", () => {
     let userService: UserService;
@@ -26,6 +27,7 @@ describe("UserService", () => {
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
             providers: [
+                UserService,
                 {
                     provide: getRepositoryToken(User),
                     useValue: {
@@ -40,7 +42,23 @@ describe("UserService", () => {
                         hash: jest.fn()
                     }
                 },
-                UserService
+                {
+                    provide: DataSource,
+                    useValue: {
+                        createQueryRunner: () => ({
+                            manager: {
+                                find: jest.fn(),
+                                save: jest.fn(),
+                                create: jest.fn()
+                            },
+                            connect: jest.fn(),
+                            startTransaction: jest.fn(),
+                            commitTransaction: jest.fn(),
+                            rollbackTransaction: jest.fn(),
+                            release: jest.fn()
+                        })
+                    }
+                },     
             ]
         }).compile();
 

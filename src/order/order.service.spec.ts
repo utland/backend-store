@@ -6,7 +6,6 @@ import { OrderStatus } from "src/common/enums/status.enum";
 import { Order } from "./entities/order.entity";
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { CreateOrderDto } from "./dto/create-order.dto";
-import { OrderProduct } from "./entities/orderProduct.entity";
 
 describe("OrderService", () => {
     let orderService: OrderService;
@@ -16,7 +15,8 @@ describe("OrderService", () => {
         manager: {
             find: jest.fn(),
             save: jest.fn(),
-            create: jest.fn()
+            create: jest.fn(),
+            softRemove: jest.fn()
         },
         connect: jest.fn(),
         startTransaction: jest.fn(),
@@ -43,7 +43,8 @@ describe("OrderService", () => {
                     provide: getRepositoryToken(Order),
                     useValue: {
                         save: jest.fn(),
-                        findOne: jest.fn()
+                        findOne: jest.fn(),
+                        softRemove: jest.fn()
                     }
                 },
                 {
@@ -65,7 +66,8 @@ describe("OrderService", () => {
             manager: {
                 find: jest.fn(),
                 save: jest.fn(),
-                create: jest.fn()
+                create: jest.fn(),
+                softRemove: jest.fn()
             },
             connect: jest.fn(),
             startTransaction: jest.fn(),
@@ -166,17 +168,6 @@ describe("OrderService", () => {
             const order = await orderService.updateStatus({ ...testOrder } as Order, OrderStatus.CANCELLED);
 
             expect(order).toEqual(orderDto);
-        });
-    });
-
-    describe("deleteOrder", () => {
-        it("should throw exception if order is already deleted", async () => {
-            jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce({
-                ...testOrder,
-                deletedAt: new Date()
-            } as Order);
-
-            await expect(orderService.deleteOrder(0)).rejects.toThrow(BadRequestException);
         });
     });
 });

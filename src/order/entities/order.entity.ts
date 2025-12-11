@@ -27,7 +27,7 @@ export class Order {
     })
     status: OrderStatus;
 
-    @Column({ length: 50, name: "order_address", nullable: true })
+    @Column({ length: 50, name: "order_address" })
     orderAddress: string;
 
     @CreateDateColumn({ name: "created_at" })

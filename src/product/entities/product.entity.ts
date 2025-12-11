@@ -45,10 +45,6 @@ export class Product {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
 
-    @Exclude()
-    @DeleteDateColumn({ name: "deleted_at", nullable: true })
-    deletedAt: Date;
-
     @Column({ name: "supplier_id" })
     supplierId: number;
 
