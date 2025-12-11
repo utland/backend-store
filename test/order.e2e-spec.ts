@@ -10,6 +10,7 @@ import { exec } from "child_process";
 import { OrderStatus } from "src/common/enums/status.enum";
 import { Test } from "@nestjs/testing";
 import TestAgent from "supertest/lib/agent";
+import { OrderProduct } from "src/order/entities/orderProduct.entity";
 
 describe("Order test", () => {
     let test: TestBuilder;
@@ -81,9 +82,6 @@ describe("Order test", () => {
         });
 
         it("should support pessimistic locking", async () => {
-            const token = tokens.get("user")?.token;
-            const token2 = (await entityBuilder.createUser()).token;
-
             const categoryId = await entityBuilder.createCategory();
             const supplierId = await entityBuilder.createSupplier();
             const productId = await entityBuilder.createProduct(categoryId, supplierId, 2);
@@ -272,12 +270,29 @@ describe("Order test", () => {
             await request(server).delete(`/order/${orderId}`).set("Authorization", `Bearer ${token2}`).expect(403);
         });
 
-        it("should softly remove order", async () => {
+        it("should softly remove order with CASCADE", async () => {
+            const orderProductRepo = test.app.get<Repository<OrderProduct>>(getRepositoryToken(OrderProduct));
+            
+            const categoryId = await entityBuilder.createCategory();
+            const supplierId = await entityBuilder.createSupplier();
+            
+            const productId1 = await entityBuilder.createProduct(categoryId, supplierId, 2);
+            const productId2 = await entityBuilder.createProduct(categoryId, supplierId, 2);
+            
+            await entityBuilder.createOrderProduct(orderId, productId1);
+            await entityBuilder.createOrderProduct(orderId, productId2);
+
             const token = tokens.get("admin")?.token;
+
+            const countBefore = await orderProductRepo.countBy({ orderId });
+            expect(countBefore).toBe(2);
 
             await request(server).delete(`/order/${orderId}`).set("Authorization", `Bearer ${token}`).expect(200);
 
             await request(server).get(`/order/${orderId}`).set("Authorization", `Bearer ${token}`).expect(404);
+
+            const countAfter = await orderProductRepo.countBy({ orderId });
+            expect(countAfter).toBe(0);
         });
     });
 });

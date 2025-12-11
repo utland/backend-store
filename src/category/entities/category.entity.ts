@@ -14,6 +14,6 @@ export class Category {
     @Column({ length: 20 })
     name: string;
 
-    @OneToMany(() => Product, (product) => product.category)
+    @OneToMany(() => Product, (product) => product.category, { onDelete: "RESTRICT" })
     products: Product[];
 }

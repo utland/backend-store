@@ -55,16 +55,11 @@ export class Product {
     @Column({ name: "category_id" })
     categoryId: number;
 
-    @ManyToOne(() => Supplier, (supplier) => supplier.products, {
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => Supplier, (supplier) => supplier.products, { onDelete: "RESTRICT" })
     @JoinColumn({ name: "supplier_id" })
     supplier: Supplier;
 
-    @ManyToOne(() => Category, (category) => category.products, {
-        nullable: true,
-        onDelete: "SET NULL"
-    })
+    @ManyToOne(() => Category, (category) => category.products)
     @JoinColumn({ name: "category_id" })
     category: Category;
 

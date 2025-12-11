@@ -160,10 +160,6 @@ export class OrderService {
     public async deleteOrder(orderId: number): Promise<void> {
         const order = await this.findOrder(orderId);
 
-        if (order.deletedAt) {
-            throw new BadRequestException("This order is already deleted");
-        }
-
         await this.orderRepo.softRemove(order);
     }
 

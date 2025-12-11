@@ -29,7 +29,7 @@ export class ProductService {
         const { orderBy, categoryId, isInStock } = findByDto;
 
         const products = await this.productRepo.find({
-            where: { categoryId, inStock: isInStock ? MoreThan(0) : Equal(0) },
+            where: { categoryId, inStock: (isInStock ? MoreThan(0) : Equal(0)) },
             relations: { supplier: true },
             order: { [orderBy]: "DESC" }
         });
@@ -40,7 +40,7 @@ export class ProductService {
     public async findProduct(productId: number): Promise<Product> {
         const product = await this.productRepo.findOne({
             where: { productId },
-            relations: ["reviews", "reviews.user", "supplier", "category"]
+            relations: ["reviews.user", "supplier", "category"]
         });
 
         if (!product) throw new NotFoundException();

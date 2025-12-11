@@ -46,13 +46,10 @@ export class Order {
     @Column({ name: "user_id" })
     userId: number;
 
-    @ManyToOne(() => User, (user) => user.orders, {
-        onDelete: "SET NULL",
-        nullable: true
-    })
+    @ManyToOne(() => User, (user) => user.orders)
     @JoinColumn({ name: "user_id" })
     user: User;
 
-    @OneToMany(() => OrderProduct, (op) => op.order)
+    @OneToMany(() => OrderProduct, (op) => op.order, { cascade: ["soft-remove"]})
     orderProducts: OrderProduct[];
 }

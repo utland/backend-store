@@ -232,5 +232,14 @@ describe("Product test", () => {
                     expect(res.body[0].avgPrice).toBeDefined();
                 });
         });
+
+        it("should be unavailable if related entries are not deleted", async () => {
+            const token = users.get("admin")?.token;
+            
+            const categoryId = await entityBuilder.createCategory();
+            await entityBuilder.createProduct(supplierId, categoryId);
+
+            await request(server).delete(`/supplier/${supplierId}`).set("Authorization", `Bearer ${token}`).expect(400);
+        });
     });
 });

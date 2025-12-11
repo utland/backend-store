@@ -11,13 +11,14 @@ import { CreateSupplierDto } from "src/supplier/dto/create-supplier.dto";
 import { CreateCategoryDto } from "src/category/dto/create-category.dto";
 import { FindProductByCategoryDto } from "src/product/dto/find-product-by-category.dto";
 import { UpdateProductDto } from "src/product/dto/update-product.dto";
+import { Review } from "src/review/entities/review.entity";
 
 describe("Product test", () => {
     let test: TestBuilder;
     let server: any;
     let entityBuilder: EntityBuilder;
 
-    let tokens: Map<string, ITestPayload>;
+    let users: Map<string, ITestPayload>;
     let categoryId: number;
     let supplierId: number;
 
@@ -28,7 +29,7 @@ describe("Product test", () => {
     });
 
     beforeAll(async () => {
-        tokens = await entityBuilder.createUsers();
+        users = await entityBuilder.createUsers();
 
         supplierId = await entityBuilder.createSupplier();
         categoryId = await entityBuilder.createCategory();
@@ -45,8 +46,8 @@ describe("Product test", () => {
 
     describe("createProduct", () => {
         it("should be available only for ADMIN", async () => {
-            const token1 = tokens.get("user")?.token;
-            const token2 = tokens.get("moderator")?.token;
+            const token1 = users.get("user")?.token;
+            const token2 = users.get("moderator")?.token;
 
             await request(server)
                 .post("/product")
@@ -62,7 +63,7 @@ describe("Product test", () => {
         });
 
         it("should create product successfully", async () => {
-            const token = tokens.get("admin")?.token;
+            const token = users.get("admin")?.token;
 
             await request(server)
                 .post("/product")
@@ -87,7 +88,7 @@ describe("Product test", () => {
 
     describe("findAll", () => {
         it("should return all available products", async () => {
-            const token = tokens.get("user")?.token;
+            const token = users.get("user")?.token;
 
             await entityBuilder.createProduct(supplierId, categoryId);
             await entityBuilder.createProduct(supplierId, categoryId);
@@ -103,7 +104,7 @@ describe("Product test", () => {
 
     describe("findByCategory", () => {
         it("should return all available products", async () => {
-            const token = tokens.get("user")?.token;
+            const token = users.get("user")?.token;
 
             const categoryId2 = await entityBuilder.createCategory();
 
@@ -127,7 +128,7 @@ describe("Product test", () => {
         };
 
         it("should return product by id", async () => {
-            const token = tokens.get("user")?.token;
+            const token = users.get("user")?.token;
 
             const productId = await entityBuilder.createProduct(supplierId, categoryId);
 
@@ -161,8 +162,8 @@ describe("Product test", () => {
         };
 
         it("should be available only for ADMIN", async () => {
-            const token1 = tokens.get("user")?.token;
-            const token2 = tokens.get("moderator")?.token;
+            const token1 = users.get("user")?.token;
+            const token2 = users.get("moderator")?.token;
 
             await request(server)
                 .post("/product")
@@ -178,7 +179,7 @@ describe("Product test", () => {
         });
 
         it("should update product", async () => {
-            const token = tokens.get("admin")?.token;
+            const token = users.get("admin")?.token;
 
             const productId = await entityBuilder.createProduct(supplierId, categoryId);
 
@@ -205,8 +206,8 @@ describe("Product test", () => {
 
     describe("deleteUser", () => {
         it("should be available only for ADMIN", async () => {
-            const token1 = tokens.get("user")?.token;
-            const token2 = tokens.get("moderator")?.token;
+            const token1 = users.get("user")?.token;
+            const token2 = users.get("moderator")?.token;
 
             const productId = await entityBuilder.createProduct(supplierId, categoryId);
 
@@ -215,14 +216,39 @@ describe("Product test", () => {
             await request(server).delete(`/product/${productId}`).set("Authorization", `Bearer ${token2}`).expect(403);
         });
 
-        it("should remove product", async () => {
-            const token = tokens.get("admin")?.token;
+        it("should remove product with CASCADE", async () => {
+            const token = users.get("admin")?.token;
+            const id = users.get("user")!.id;
+            const id2 = users.get("moderator")!.id;
 
+            
             const productId = await entityBuilder.createProduct(supplierId, categoryId);
+            await entityBuilder.createReview(id, productId);
+            await entityBuilder.createReview(id2, productId);
+
+            const reviewRepo = test.app.get<Repository<Review>>(getRepositoryToken(Review));
+
+            const countBefore = await reviewRepo.countBy({ productId });
+            expect(countBefore).toBe(2);
 
             await request(server).delete(`/product/${productId}`).set("Authorization", `Bearer ${token}`).expect(200);
 
             await request(server).get(`/product/${productId}`).set("Authorization", `Bearer ${token}`).expect(404);
+
+            const countAfter = await reviewRepo.countBy({ productId });
+            expect(countAfter).toBe(0);
+        });
+
+        it("should be unavailable if related entries are not deleted", async () => {
+            const token = users.get("admin")?.token;
+            const id = users.get("user")!.id;
+
+            
+            const productId = await entityBuilder.createProduct(supplierId, categoryId);
+            await entityBuilder.createCartProduct(id, productId);
+
+
+            await request(server).delete(`/product/${productId}`).set("Authorization", `Bearer ${token}`).expect(400);
         });
     });
 });

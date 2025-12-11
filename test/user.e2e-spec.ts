@@ -1,12 +1,11 @@
 import { TestBuilder } from "./config/test-builder";
-import { SignUpDto } from "../src/auth/dto/sign-up.dto";
 import request from "supertest";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { User } from "src/user/entities/user.entity";
 import { Repository } from "typeorm";
-import { Role } from "src/common/enums/role.enum";
 import { EntityBuilder, ITestPayload } from "./config/entity-builder";
 import { UpdateCartProductDto } from "src/user/cart/dto/update-cart-product.dto";
+import { CartProduct } from "src/user/entities/cartProduct.entity";
+import { Order } from "src/order/entities/order.entity";
 
 describe("User test", () => {
     let test: TestBuilder;
@@ -167,13 +166,41 @@ describe("User test", () => {
             await request(server).delete("/user/1").set("Authorization", `Bearer ${token2}`).expect(403);
         });
 
-        it("should softly remove user", async () => {
+        it("should softly remove user with hard-deleting cart and soft-deleting orders", async () => {
             const token = users.get("admin")?.token;
-            const moderatorId = users.get("moderator")?.id;
+            const moderatorId = users.get("moderator")!.id;
+
+            const cartProductRepo = test.app.get<Repository<CartProduct>>(getRepositoryToken(CartProduct));
+            const orderRepo = test.app.get<Repository<Order>>(getRepositoryToken(Order));
+
+            const categoryId = await entityBuilder.createCategory();
+            const supplierId = await entityBuilder.createSupplier();
+            const productId = await entityBuilder.createProduct(categoryId, supplierId);
+
+            const orderId = await entityBuilder.createOrder(moderatorId);
+            await entityBuilder.createOrderProduct(orderId, productId);
+
+            await entityBuilder.createCartProduct(moderatorId, productId);
+
+            const countCartBefore = await cartProductRepo.countBy({ userId: moderatorId });
+            const countOrderBefore = await orderRepo.countBy({ userId: moderatorId });
+
+            expect(countCartBefore).toBe(1);
+            expect(countOrderBefore).toBe(1);
 
             await request(server).delete(`/user/${moderatorId}`).set("Authorization", `Bearer ${token}`).expect(200);
 
             await request(server).get(`/user/${moderatorId}`).set("Authorization", `Bearer ${token}`).expect(404);
+
+            const countCartAfter = await cartProductRepo.countBy({ userId: moderatorId });
+            const countOrderAfter = await orderRepo.countBy({ userId: moderatorId });
+            const orderAfterWithDeleted = await orderRepo.find({ 
+                where: { userId: moderatorId}, withDeleted: true
+            });
+
+            expect(countCartAfter).toBe(0);
+            expect(countOrderAfter).toBe(0);
+            expect(orderAfterWithDeleted.length).toBe(1);
         });
     });
 

@@ -20,6 +20,6 @@ export class Supplier {
     @Column({ name: "logo_url", type: "text", nullable: true })
     logoUrl: string;
 
-    @OneToMany(() => Product, (product) => product.supplier)
+    @OneToMany(() => Product, (product) => product.supplier, { onDelete: "RESTRICT" })
     products: Product[];
 }

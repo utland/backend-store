@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, Check } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, Check, DeleteDateColumn } from "typeorm";
 import { Order } from "./order.entity";
 import { Product } from "src/product/entities/product.entity";
+import { Exclude } from "class-transformer";
 
 @Entity("order_product")
 @Check(`"amount" > 0`)
@@ -18,13 +19,15 @@ export class OrderProduct {
     @Column("integer")
     price: number;
 
-    @ManyToOne(() => Order, (order) => order.orderProducts, {
-        onDelete: "CASCADE"
-    })
+    @Exclude()
+    @DeleteDateColumn({ name: "deleted_at", nullable: true})
+    deletedAt: Date
+
+    @ManyToOne(() => Order, (order) => order.orderProducts)
     @JoinColumn({ name: "order_id" })
     order: Order;
 
-    @ManyToOne(() => Product, (product) => product.orderProducts)
+    @ManyToOne(() => Product, (product) => product.orderProducts, { onDelete: "RESTRICT"})
     @JoinColumn({ name: "product_id" })
     product: Product;
 }

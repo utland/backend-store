@@ -6,6 +6,9 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { ChangePassDto } from "./dto/change-pass.dto";
 import { PasswordService } from "src/password/password.service";
 import { Role } from "src/common/enums/role.enum";
+import { DataSource } from "typeorm";
+import { Order } from "src/order/entities/order.entity";
+import { CartProduct } from "./entities/cartProduct.entity";
 
 @Injectable()
 export class UserService {
@@ -13,15 +16,13 @@ export class UserService {
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
 
-        private readonly passService: PasswordService
+        private readonly passService: PasswordService,
+
+        private readonly dataSource: DataSource
     ) {}
 
     public async findByLogin(login: string): Promise<User> {
-        const user = await this.userRepo.findOne({
-            where: {
-                login
-            }
-        });
+        const user = await this.userRepo.findOne({ where: { login } });
 
         if (!user) throw new NotFoundException("User is not found");
 
@@ -126,8 +127,29 @@ export class UserService {
     }
 
     public async deleteUser(userId: number): Promise<void> {
-        const user = await this.findUser(userId);
+        const queryRunner = this.dataSource.createQueryRunner();
 
-        await this.userRepo.softRemove(user);
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            const user = await this.findUser(userId);
+            const orders = await queryRunner.manager.find(Order, { 
+                where: { userId: user.userId },
+                relations: { orderProducts: true } 
+            });
+
+            await queryRunner.manager.remove(CartProduct, user.cart);
+            await queryRunner.manager.softRemove(Order, orders);
+            await queryRunner.manager.softRemove(User, user);
+
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+
+            throw error;
+        } finally {
+            await queryRunner.release();
+        }
     }
 }

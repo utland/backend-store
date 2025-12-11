@@ -172,5 +172,14 @@ describe("Category Test", () => {
 
             await request(server).get(`/category/${categoryId}`).set("Authorization", `Bearer ${token}`).expect(404);
         });
+
+        it("should be unavailable if related entries are not deleted", async () => {
+            const token = users.get("admin")?.token;
+            
+            const supplierId = await entityBuilder.createSupplier();
+            await entityBuilder.createProduct(supplierId, categoryId);
+
+            await request(server).delete(`/category/${categoryId}`).set("Authorization", `Bearer ${token}`).expect(400);
+        });
     });
 });

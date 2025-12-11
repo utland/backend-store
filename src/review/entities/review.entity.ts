@@ -35,16 +35,11 @@ export class Review {
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt: Date;
 
-    @ManyToOne(() => Product, (product) => product.reviews, {
-        onDelete: "CASCADE"
-    })
+    @ManyToOne(() => Product, (product) => product.reviews, { onDelete: "CASCADE" })
     @JoinColumn({ name: "product_id" })
     product: Product;
 
-    @ManyToOne(() => User, (user) => user.reviews, {
-        onDelete: "SET NULL",
-        nullable: true
-    })
+    @ManyToOne(() => User, (user) => user.reviews)
     @JoinColumn({ name: "user_id" })
     user: User;
 }
