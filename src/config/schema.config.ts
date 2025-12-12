@@ -8,5 +8,8 @@ export const appSchema = Joi.object({
     DATABASE_PASSWORD: Joi.string().required(),
     DATABASE_DB: Joi.string().required(),
     JWT_SECRET: Joi.string().required(),
-    JWT_EXPIRES_IN: Joi.string().required()
+    JWT_EXPIRES_IN: Joi.string().required(),
+    PGADMIN_EMAIL: Joi.string().required(),
+    PGADMIN_PASSWORD: Joi.string().required(),
+    PORT: Joi.number().required()
 });

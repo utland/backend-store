@@ -1,6 +1,6 @@
 ## Основні відомості
 + **Назва**: Курсова робота. Back-end застосунок онлайн-магазину
-+ **Опис**: Онлайн-магазин з товарами, де користувач має можливість продивлятися різні товари, додавати в їх кошик та робити нові замовлення.
++ **Опис**: Онлайн-магазин, де користувач має можливість продивлятися різні товари, додавати їх у кошик та робити нові замовлення.
 + **Виконавець**: Сизоненко Ілля (IM-43)
 
 ## Технологічний стек
@@ -10,19 +10,61 @@
 
 ## Інструкції з використання
 1. Клонуйте репозиторій
-2. Запустіть сервіси: `docker-compose up`
-3. Для запуску додатку виконайте команду `npm run start` або `npm run start:dev` для розробки
-4. Для створення тестових даних використовуйте insert-скрипт в `/docs/insert-script.sql`
+```console
+git clone https://github.com/utland/backend-store.git
+```
+2. Створіть .env-файл та налаштуйте наступні змінні
+```code
+PORT=3000
+
+DATABASE_TYPE=postgres
+DATABASE_HOST=postgress
+DATABASE_PORT=5432
+DATABASE_USER=user
+DATABASE_PASSWORD=password
+DATABASE_DB=store
+
+JWT_SECRET=secret987
+JWT_EXPIRES_IN=1h
+
+PGADMIN_EMAIL=youremail@gmail.com
+PGADMIN_PASSWORD=password
+```
+3. Запустіть сервіси
+```console
+docker-compose up -d
+```
+4. Для створення тестових даних використовуйте insert-скрипт з `/docs/insert-script.sql`
 
 ## Тестування
-Для запуску усіх тестів необхідно виконати команди:
-+  `npm run test` - для unit-тестів
-+  `npm run test:e2e` - для інтеграційних тестів(e2e)
+Для запуску усіх unit-тестів:
+```console 
+npm run test
+``` 
+Для запуску усіх e2e-тестів:
+```console 
+npm run test:e2e
+``` 
 
-Щоб запустити конкретний тестовий файл або тест:
-+  `npm tun test -- user.service` - запуск тестового файлу `user.service.spec.ts`
-+  `npm tun test:e2e -- user.e2e` - запуск тестового файлу `user.e2e-spec.ts`
-+  `npm tun test -- user.e2e -t createUser` - запуск тестів `createUser` у відповідному файлі
+Щоб запустити конкретний тестовий файл:
+```console
+npm tun test -- user.service
+```
+```console
+npm tun test:e2e -- user.e2e
+```
+
+## Міграції
+Для того щоб створити нову міграцію необхідно:
+```console
+npm run migration:generate -- typeorm/migration/name_of_migration
+```
+
+Після створення та налаштування міграції її необхідно запустити:
+```console
+npm run migration:run
+```
+
 
 ## Огляд структури 
 ```
@@ -46,7 +88,7 @@ store-backend/
 │
 ├── test/                     # Тестові файли
 │   ├── config/               # Конфігураційні файли
-│   │   └── ...     #
+│   │   └── ...     
 │   └── jest.e2e-spec.ts/     # Налаштування Jest    
 │   └── ...                   # E2E-тести
 │
@@ -56,13 +98,14 @@ store-backend/
 │   └── data-source.ts      # Налаштування міграцій
 │
 ├── docker-compose.yml         # Конфігурація Docker
+├── Dockerfile                 # Конфігурація контейнера додатку
 ├── README.md                  # Основна документація
 └── ...
 ```
 
 ## Приклади API
 
-## User (Користувачі)
+### User (Користувачі)
 
 `/auth/register POST` - зареєструвати нового користувача \
 `/auth/login POST` - увійти в обліковий запис користувача та отримати токен \
@@ -79,7 +122,7 @@ store-backend/
 `/cart PATCH` - змінити товар у корзині \
 `/cart/:productId DELETE` - видалити товар з корзини
 
-## Product (Товари)
+### Product (Товари)
 
 `POST /product` - створити новий товар (тільки Admin) \
 `GET /product` - отримати список усіх товарів \
@@ -88,7 +131,7 @@ store-backend/
 `PATCH /product/:id` - оновити дані товару (тільки Admin) \
 `DELETE /product/:id` - видалити товар (тільки Admin) 
 
-## Order (Замовлення)
+### Order (Замовлення)
 
 `POST /order` - створити нове замовлення \
 `GET /order` - отримати історію замовлень поточного користувача \
@@ -98,7 +141,7 @@ store-backend/
 `PATCH /order/address` - змінити адресу доставки в замовленні \
 `DELETE /order/:id` - видалити замовлення (тільки Admin) 
 
-## Category (Категорії)
+### Category (Категорії)
 
 `POST /category` - створити нову категорію (тільки Admin) \
 `GET /category` - отримати список усіх категорій \
@@ -106,7 +149,7 @@ store-backend/
 `PATCH /category/:id` - оновити категорію (тільки Admin) \
 `DELETE /category/:id` - видалити категорію (тільки Admin) 
 
-## Supplier (Постачальники)
+### Supplier (Постачальники)
 
 `GET /supplier/sales` - отримати статистику продажів за місяць (тільки Admin) \
 `POST /supplier` - додати нового постачальника (тільки Admin) \
@@ -115,7 +158,7 @@ store-backend/
 `PATCH /supplier/:id` - оновити дані постачальника (тільки Admin) \
 `DELETE /supplier/:id` - видалити постачальника (тільки Admin) 
 
-## Review (Відгуки)
+### Review (Відгуки)
 
 `POST /review` - залишити відгук про товар \
 `GET /review/:id` - отримати відгук за ID \
