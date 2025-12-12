@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { DataSource, In, QueryRunner, Repository } from "typeorm";
+import { DataSource, In, OptimisticLockVersionMismatchError, QueryRunner, Repository } from "typeorm";
 import { Order } from "./entities/order.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CreateOrderDto } from "./dto/create-order.dto";
@@ -139,6 +139,10 @@ export class OrderService {
             return updatedOrder;
         } catch (error) {
             await queryRunner.rollbackTransaction();
+
+            if (error instanceof OptimisticLockVersionMismatchError) {
+                throw new ConflictException("This order is already updated")
+            }
 
             throw error;
         } finally {

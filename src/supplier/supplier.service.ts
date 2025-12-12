@@ -57,8 +57,10 @@ export class SupplierService {
     public async getSupplierSalesForMonth(supplierSalesDto: SupplierSalesDto): Promise<SupplierSales[]> {
         const { year, month } = supplierSalesDto;
         const supplierSalesTable = await this.supplierSalesRepo.find({
-            where: { month: `${year}-${month}-01` }
+            where: { month: `${year}-${month}` }
         });
+
+        
 
         return supplierSalesTable;
     }

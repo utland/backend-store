@@ -4,9 +4,9 @@ import { Column, ViewColumn, ViewEntity } from "typeorm";
     expression: `
         select 
         s.name as company_name,
-        date_trunc('month', o.created_at) as month,
-        sum(op.amount) as sold_products,
-        round(avg(op.amount * op.price), 2) as average_price
+        to_char(date_trunc('month', o.created_at), 'YYYY-MM') as month,
+        sum(op.amount)::integer as sold_products,
+        round(avg(op.amount * op.price), 2)::float as average_price
         from supplier s
         left join product p on s.supplier_id = p.supplier_id
         left join order_product op on op.product_id = p.product_id

@@ -230,7 +230,7 @@ describe("Order test", () => {
             const reponses = await Promise.all([req1, req2]);
 
             const resolves = reponses.filter((res) => res.status === 200 || res.status === 201);
-            const rejects = reponses.filter((res) => res.status === 400);
+            const rejects = reponses.filter((res) => res.status === 409);
 
             expect(resolves.length).toBe(1);
             expect(rejects.length).toBe(1);
