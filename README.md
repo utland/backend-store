@@ -23,6 +23,7 @@ DATABASE_PORT=5432
 DATABASE_USER=user
 DATABASE_PASSWORD=password
 DATABASE_DB=store
+DATABASE_SYNC=1
 
 JWT_SECRET=secret987
 JWT_EXPIRES_IN=1h
@@ -55,6 +56,8 @@ npm tun test:e2e -- user.e2e
 ```
 
 ## Міграції
+`Для коректного використання міграцій необхідно змінити змінну в .env-файлі на DATABASE_SYNC=0` 
+
 Для того щоб створити нову міграцію необхідно:
 ```console
 npm run migration:generate -- typeorm/migrations/name_of_migration
@@ -107,60 +110,60 @@ store-backend/
 
 ### User (Користувачі)
 
-`/auth/register POST` - зареєструвати нового користувача \
-`/auth/login POST` - увійти в обліковий запис користувача та отримати токен \
+`POST /auth/register` - зареєструвати нового користувача \
+`POST /auth/login` - увійти в обліковий запис користувача та отримати токен \
 
-`/user/pass PATCH` - змінити пароль \
-`/user/:userId GET` - отримати публічні дані користувача \
-`/user/token GET` - отримати дані користувача за токеном \
-`/user GET` - отримати усіх користувачів \
-`/user PATCH` - змінити налаштування користувача за токеном \
-`/user/:userId DELETE` - видалити користувача \
-`/user/role/:userId PATCH` - змінити права доступу користувача \
+`PATCH /user/pass` - змінити пароль \
+`GET /user/:id` - отримати публічні дані користувача \
+`GET /user/token` - отримати дані користувача за токеном \
+`GET /user` - отримати усіх користувачів \
+`PATCH /user` - змінити налаштування користувача за токеном \
+`DELETE /user/:id` - видалити користувача \
+`PATCH /user/role/:id` - змінити права доступу користувача \
 
-`/cart/:productId POST` - додати товар у корзину користувача \
-`/cart PATCH` - змінити товар у корзині \
-`/cart/:productId DELETE` - видалити товар з корзини
+`POST /cart/:productId` - додати товар у корзину користувача \
+`PATCH /cart` - змінити товар у корзині \
+`DELETE /cart/:productId` - видалити товар з корзини
 
 ### Product (Товари)
 
 `POST /product` - створити новий товар (тільки Admin) \
 `GET /product` - отримати список усіх товарів \
-`GET /product/byCategory` - отримати товари за категорією (через query params) \
+`GET /product/byCategory/?orderBy=name&categoryId=1&isInStock=true` - отримати товари за категорією (через query params) \
 `GET /product/:id` - отримати деталі конкретного товару \
-`PATCH /product/:id` - оновити дані товару (тільки Admin) \
-`DELETE /product/:id` - видалити товар (тільки Admin) 
+`PATCH /product/:id` - оновити дані товару \
+`DELETE /product/:id` - видалити товар
 
 ### Order (Замовлення)
 
 `POST /order` - створити нове замовлення \
 `GET /order` - отримати історію замовлень поточного користувача \
-`GET /order/all` - отримати всі замовлення у системі (Admin, Moderator) \
-`GET /order/:id` - отримати деталі конкретного замовлення (Admin або власник) \
-`PATCH /order/status` - змінити статус замовлення (Admin, або User для скасування) \
+`GET /order/all` - отримати всі замовлення у системі \
+`GET /order/:id` - отримати деталі конкретного замовлення \
+`PATCH /order/status` - змінити статус замовлення \
 `PATCH /order/address` - змінити адресу доставки в замовленні \
-`DELETE /order/:id` - видалити замовлення (тільки Admin) 
+`DELETE /order/:id` - видалити замовленн
 
 ### Category (Категорії)
 
-`POST /category` - створити нову категорію (тільки Admin) \
+`POST /category` - створити нову категорію \
 `GET /category` - отримати список усіх категорій \
 `GET /category/:id` - отримати категорію за ID \
-`PATCH /category/:id` - оновити категорію (тільки Admin) \
-`DELETE /category/:id` - видалити категорію (тільки Admin) 
+`PATCH /category/:id` - оновити категорію \
+`DELETE /category/:id` - видалити категорію 
 
 ### Supplier (Постачальники)
 
-`GET /supplier/sales` - отримати статистику продажів за місяць (тільки Admin) \
-`POST /supplier` - додати нового постачальника (тільки Admin) \
+`GET /supplier/sales` - отримати статистику продажів за місяць \
+`POST /supplier` - додати нового постачальника \
 `GET /supplier` - отримати список усіх постачальників \
 `GET /supplier/:id` - отримати дані постачальника за ID \
-`PATCH /supplier/:id` - оновити дані постачальника (тільки Admin) \
-`DELETE /supplier/:id` - видалити постачальника (тільки Admin) 
+`PATCH /supplier/:id` - оновити дані постачальника \
+`DELETE /supplier/:id` - видалити постачальника 
 
 ### Review (Відгуки)
 
 `POST /review` - залишити відгук про товар \
 `GET /review/:id` - отримати відгук за ID \
 `PATCH /review/:id` - редагувати власний відгук \
-`DELETE /review/:id` - видалити відгук (Admin або автор відгуку) 
+`DELETE /review/:id` - видалити відгук

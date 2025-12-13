@@ -16,7 +16,8 @@ describe("OrderService", () => {
             find: jest.fn(),
             save: jest.fn(),
             create: jest.fn(),
-            softRemove: jest.fn()
+            softRemove: jest.fn(),
+            update: jest.fn()
         },
         connect: jest.fn(),
         startTransaction: jest.fn(),
@@ -67,7 +68,8 @@ describe("OrderService", () => {
                 find: jest.fn(),
                 save: jest.fn(),
                 create: jest.fn(),
-                softRemove: jest.fn()
+                softRemove: jest.fn(),
+                update: jest.fn()
             },
             connect: jest.fn(),
             startTransaction: jest.fn(),
@@ -141,6 +143,10 @@ describe("OrderService", () => {
                 { productId: 0, inStock: 4 },
                 { productId: 1, inStock: 9 }
             ]);
+
+            queryRunnerMock.manager.update.mockResolvedValue({
+                affrected: 1
+            })
         });
 
         it("should throw exception if order is completed", async () => {
@@ -163,7 +169,9 @@ describe("OrderService", () => {
 
         it("should return updated order if order is not closed", async () => {
             const orderDto = { ...testOrder, status: OrderStatus.CANCELLED };
+            
             queryRunnerMock.manager.save.mockResolvedValue(orderDto as Order);
+            jest.spyOn(orderRepo, "findOne").mockResolvedValueOnce(orderDto as Order);
 
             const order = await orderService.updateStatus({ ...testOrder } as Order, OrderStatus.CANCELLED);
 

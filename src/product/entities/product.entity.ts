@@ -8,7 +8,8 @@ import {
     UpdateDateColumn,
     CreateDateColumn,
     Check,
-    DeleteDateColumn
+    DeleteDateColumn,
+    Index
 } from "typeorm";
 import { OrderProduct } from "src/order/entities/orderProduct.entity";
 import { Supplier } from "src/supplier/entities/supplier.entity";
@@ -20,6 +21,7 @@ import { Exclude } from "class-transformer";
 @Entity("product")
 @Check(`"price" > 0`)
 @Check(`"in_stock" >= 0`)
+@Index("IXD_PRODUCT_CATEGORY_STOCK", ["categoryId", "inStock"])
 export class Product {
     @PrimaryGeneratedColumn({ name: "product_id" })
     productId: number;

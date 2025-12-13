@@ -7,5 +7,5 @@ export const databaseConfig = registerAs("database", () => ({
     username: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_DB,
-    synchronize: false
+    synchronize: Boolean(parseInt(process.env.DATABASE_SYNC ?? "0"))
 }));
