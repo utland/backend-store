@@ -18,7 +18,7 @@ git clone https://github.com/utland/backend-store.git
 PORT=3000
 
 DATABASE_TYPE=postgres
-DATABASE_HOST=postgress
+DATABASE_HOST=postgres
 DATABASE_PORT=5432
 DATABASE_USER=user
 DATABASE_PASSWORD=password
