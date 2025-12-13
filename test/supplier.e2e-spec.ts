@@ -228,7 +228,7 @@ describe("Product test", () => {
                 .expect((res) => {
                     expect(res.body).toBeInstanceOf(Array);
                     expect(res.body[0].companyName).toBe(supplierTest.name);
-                    expect(res.body[0].soldProducts).toBe("3");
+                    expect(res.body[0].soldProducts).toBe(3);
                     expect(res.body[0].avgPrice).toBeDefined();
                 });
         });

@@ -130,11 +130,11 @@ export class EntityBuilder {
         return { token: userRes.body.accessToken, id: userRes.body.id, login: userTest.login };
     }
 
-    public async createCategory(): Promise<number> {
+    public async createCategory(name?: string): Promise<number> {
         const categoryRepo = this.app.get<Repository<Category>>(getRepositoryToken(Category));
 
         const { categoryId } = await categoryRepo.save({
-            name: categoryTest.name,
+            name: (name ? name : categoryTest.name),
             img_url: categoryTest.img_url
         });
 

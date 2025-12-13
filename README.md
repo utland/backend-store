@@ -32,7 +32,7 @@ PGADMIN_PASSWORD=password
 ```
 3. Запустіть сервіси
 ```console
-docker-compose up -d
+docker-compose up -d --build
 ```
 4. Для створення тестових даних використовуйте insert-скрипт з `/docs/insert-script.sql`
 
@@ -57,7 +57,7 @@ npm tun test:e2e -- user.e2e
 ## Міграції
 Для того щоб створити нову міграцію необхідно:
 ```console
-npm run migration:generate -- typeorm/migration/name_of_migration
+npm run migration:generate -- typeorm/migrations/name_of_migration
 ```
 
 Після створення та налаштування міграції її необхідно запустити:

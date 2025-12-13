@@ -132,17 +132,21 @@ export class OrderService {
             }
 
             order.status = status;
-            const updatedOrder = await queryRunner.manager.save(Order, order);
+            const result = await queryRunner.manager.update(
+                Order, { orderId: order.orderId, version: order.version}, { status }
+            );
+
+            if (result.affected === 0) {
+                throw new ConflictException("This order is already updated")
+            }
 
             await queryRunner.commitTransaction();
+
+            const updatedOrder = await this.findOrder(order.orderId);
 
             return updatedOrder;
         } catch (error) {
             await queryRunner.rollbackTransaction();
-
-            if (error instanceof OptimisticLockVersionMismatchError) {
-                throw new ConflictException("This order is already updated")
-            }
 
             throw error;
         } finally {

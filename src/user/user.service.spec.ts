@@ -8,6 +8,7 @@ import { BadRequestException, NotAcceptableException, NotFoundException } from "
 import { PasswordService } from "src/password/password.service";
 import { ChangePassDto } from "./dto/change-pass.dto";
 import { DataSource } from "typeorm";
+import { TopUsers } from "./entities/user-statistic.entity";
 
 describe("UserService", () => {
     let userService: UserService;
@@ -33,6 +34,12 @@ describe("UserService", () => {
                     useValue: {
                         save: jest.fn(),
                         findOne: jest.fn()
+                    }
+                },
+                {
+                    provide: getRepositoryToken(TopUsers),
+                    useValue: {
+                        find: jest.fn()
                     }
                 },
                 {

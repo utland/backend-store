@@ -223,9 +223,9 @@ describe("Order test", () => {
                 .send({ orderId, status: OrderStatus.CANCELLED });
 
             const req2 = request(server)
-                .get("/order/status")
+                .patch("/order/status")
                 .set("Authorization", `Bearer ${token2}`)
-                .send({ orderId, status: OrderStatus.IN_PROCESS });
+                .send({ orderId, status: OrderStatus.COMPLETED });
 
             const reponses = await Promise.all([req1, req2]);
 

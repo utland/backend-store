@@ -6,6 +6,7 @@ import { EntityBuilder, ITestPayload } from "./config/entity-builder";
 import { UpdateCartProductDto } from "src/user/cart/dto/update-cart-product.dto";
 import { CartProduct } from "src/user/entities/cartProduct.entity";
 import { Order } from "src/order/entities/order.entity";
+import { OrderStatus } from "src/common/enums/status.enum";
 
 describe("User test", () => {
     let test: TestBuilder;
@@ -78,6 +79,42 @@ describe("User test", () => {
                 });
         });
     });
+
+    describe("getTopUsers", () => {
+        it("should successfully get analytics of top users", async () => {
+            const token = users.get("admin")?.token;
+            const id = users.get("user")!.id;
+            const login = users.get("user")!.login;
+
+            const supplierId = await entityBuilder.createSupplier();
+            const categoryId1 = await entityBuilder.createCategory("cat1")
+            const categoryId2 = await entityBuilder.createCategory("cat2")
+
+            const productId1 = await entityBuilder.createProduct(supplierId, categoryId1);
+            const productId2 = await entityBuilder.createProduct(supplierId, categoryId1);
+
+            const order1 = await entityBuilder.createOrder(id, OrderStatus.COMPLETED);
+            const order2 = await entityBuilder.createOrder(id, OrderStatus.COMPLETED);
+            const order3 = await entityBuilder.createOrder(id, OrderStatus.CANCELLED);
+
+            await entityBuilder.createOrderProduct(order1, productId1)
+            await entityBuilder.createOrderProduct(order1, productId2)
+            await entityBuilder.createOrderProduct(order2, productId1)
+            await entityBuilder.createOrderProduct(order3, productId1)
+            await entityBuilder.createOrderProduct(order3, productId2)
+
+            await request(server)
+                    .get("/user/topUsers")
+                    .set("Authorization", `Bearer ${token}`)
+                    .expect(200)
+                    .expect(res => {
+                        expect(res.body).toBeInstanceOf(Array)
+                        expect(res.body[0].username).toBe(login)
+                        expect(res.body[0].totalProducts).toBe(3)
+                        expect(res.body[0].favoriteCategory).toBe("cat1")
+                    })
+        })
+    })
 
     describe("changePasswd", () => {
         it("should change password for user", async () => {

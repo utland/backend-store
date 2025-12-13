@@ -7,9 +7,10 @@ import { CartController } from "./cart/cart.controller";
 import { CartService } from "./cart/cart.service";
 import { CartProduct } from "./entities/cartProduct.entity";
 import { PasswordService } from "src/password/password.service";
+import { TopUsers } from "./entities/user-statistic.entity";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, CartProduct])],
+    imports: [TypeOrmModule.forFeature([User, CartProduct, TopUsers])],
     providers: [UserService, CartService, PasswordService],
     controllers: [UserController, CartController],
     exports: [UserService]

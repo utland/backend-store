@@ -19,6 +19,7 @@ import { Role } from "src/common/enums/role.enum";
 import { CurrentUserId } from "src/common/decorators/current-user-id.decorator";
 import { Public } from "src/common/decorators/public.decorator";
 import { ChangeRoleDto } from "./dto/change-role.dto";
+import { TopUsers } from "./entities/user-statistic.entity";
 
 @Controller("user")
 export class UserController {
@@ -33,6 +34,11 @@ export class UserController {
     @Get("/token")
     public async findByToken(@CurrentUserId() userId: number): Promise<User> {
         return await this.userService.findUser(userId);
+    }
+
+    @Get("/topUsers")
+    public async getTopUsers(): Promise<TopUsers[]> {
+        return await this.userService.getTopUsers();
     }
 
     @Get("/:id")

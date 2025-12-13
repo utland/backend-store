@@ -9,12 +9,16 @@ import { Role } from "src/common/enums/role.enum";
 import { DataSource } from "typeorm";
 import { Order } from "src/order/entities/order.entity";
 import { CartProduct } from "./entities/cartProduct.entity";
+import { TopUsers } from "./entities/user-statistic.entity";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User)
         private readonly userRepo: Repository<User>,
+
+        @InjectRepository(TopUsers)
+        private readonly topUsersRepo: Repository<TopUsers>,
 
         private readonly passService: PasswordService,
 
@@ -151,5 +155,9 @@ export class UserService {
         } finally {
             await queryRunner.release();
         }
+    }
+
+    public async getTopUsers(): Promise<TopUsers[]> {
+        return await this.topUsersRepo.find();
     }
 }
