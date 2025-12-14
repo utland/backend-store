@@ -19,7 +19,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_DB}
     ports:
-      - "${DATABASE_PORT}:5432"
+      - "5432:5432"
     volumes:
       - main-db-data:/var/lib/postgresql/data
     healthcheck:
@@ -37,7 +37,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_TEST_DB}
     ports:
-      - "${DATABASE_TEST_PORT}:5432"
+      - "5433:5432"
     volumes:
       - test-db-data:/var/lib/postgresql/data
     healthcheck:
