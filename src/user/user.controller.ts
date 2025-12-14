@@ -36,6 +36,7 @@ export class UserController {
         return await this.userService.findUser(userId);
     }
 
+    @Roles(Role.ADMIN)
     @Get("/topUsers")
     public async getTopUsers(): Promise<TopUsers[]> {
         return await this.userService.getTopUsers();

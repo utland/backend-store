@@ -1,29 +1,47 @@
 services:
 
-  api:
+  app:
     build: .                 
-    container_name: api-course
+    container_name: app-course
     ports:
-      - "${PORT}:${PORT}"   
+      - "${APP_PORT}:${APP_PORT}"   
     env_file:
       - .env                
     depends_on:
-      - postgres        
+      - main-db        
     restart: always
 
-  postgres:
+  main-db:
     image: postgres:16
-    container_name: postgres-course
+    container_name: main-course
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_DB}
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - main-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d ${DATABASE_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  test-db:
+    image: postgres:16
+    container_name: test-course
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_TEST_DB}
+    ports:
+      - "${DATABASE_TEST_PORT}:5432"
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER} -d test-db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -42,5 +60,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  main-db-data:
+  test-db-data:
   pgadmin-data:

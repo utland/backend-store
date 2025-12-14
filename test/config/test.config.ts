@@ -7,11 +7,11 @@ dotenv.config();
 export const testConfig: ConfigType = {
     database: {
         type: process.env.DATABASE_TYPE,
-        host: "localhost",
-        port: process.env.DATABASE_PORT,
+        host: process.env.DATABASE_TEST_HOST,
+        port: process.env.DATABASE_TEST_PORT,
         username: process.env.DATABASE_USER,
         password: process.env.DATABASE_PASSWORD,
-        database: "test-db",
+        database: process.env.DATABASE_TEST_DB,
         synchronize: true
     },
     jwt: {

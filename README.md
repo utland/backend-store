@@ -15,20 +15,24 @@ git clone https://github.com/utland/backend-store.git
 ```
 2. Створіть .env-файл та налаштуйте наступні змінні
 ```code
-PORT=3000
+APP_PORT=3000
 
 DATABASE_TYPE=postgres
-DATABASE_HOST=postgres
-DATABASE_PORT=5432
+DATABASE_HOST=main-db
 DATABASE_USER=user
 DATABASE_PASSWORD=password
+DATABASE_PORT=5432
 DATABASE_DB=store
 DATABASE_SYNC=1
 
-JWT_SECRET=secret987
+DATABASE _TEST_HOST=test-db
+DATABASE_TEST_PORT=5433
+DATABASE_TEST_DB=test
+
+JWT_SECRET=secret
 JWT_EXPIRES_IN=1h
 
-PGADMIN_EMAIL=youremail@gmail.com
+PGADMIN_EMAIL=youremail0@gmail.com
 PGADMIN_PASSWORD=password
 ```
 3. Запустіть сервіси
@@ -38,6 +42,11 @@ docker-compose up -d --build
 4. Для створення тестових даних використовуйте insert-скрипт з `/docs/insert-script.sql`
 
 ## Тестування
+Для виконання наступних команд необхідно увійти в shell нашого додатка: 
+```console
+docker-compose exec app sh
+```
+---
 Для запуску усіх unit-тестів:
 ```console 
 npm run test
@@ -56,14 +65,14 @@ npm tun test:e2e -- user.e2e
 ```
 
 ## Міграції
-`Для коректного використання міграцій необхідно змінити змінну в .env-файлі на DATABASE_SYNC=0` 
+`Для коректного використання міграцій необхідно поміняти змінну в .env-файлі на DATABASE_SYNC=0` 
 
-Для того щоб створити нову міграцію необхідно:
+Для того щоб створити нову міграцію:
 ```console
 npm run migration:generate -- typeorm/migrations/name_of_migration
 ```
 
-Після створення та налаштування міграції її необхідно запустити:
+Щоб застосувати міграцію до БД:
 ```console
 npm run migration:run
 ```

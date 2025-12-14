@@ -81,6 +81,22 @@ describe("User test", () => {
     });
 
     describe("getTopUsers", () => {
+        it("should be available only for ADMIN", async () => {
+            const token1 = users.get("user")?.token;
+            const token2 = users.get("moderator")?.token;
+            const moderatorId = users.get("moderator")?.id;
+
+            await request(server)
+                .get("/user/topUsers")
+                .set("Authorization", `Bearer ${token1}`)
+                .expect(403);
+
+            await request(server)
+                .get("/user/topUsers")
+                .set("Authorization", `Bearer ${token2}`)
+                .expect(403);
+        });
+
         it("should successfully get analytics of top users", async () => {
             const token = users.get("admin")?.token;
             const id = users.get("user")!.id;
