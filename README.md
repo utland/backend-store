@@ -63,20 +63,6 @@ npm run test -- user.service
 npm run test:e2e -- user.e2e
 ```
 
-## Міграції
-`Для коректного використання міграцій необхідно поміняти змінну в .env-файлі на DATABASE_SYNC=0` 
-
-Для того щоб створити нову міграцію:
-```console
-npm run migration:generate -- typeorm/migrations/name_of_migration
-```
-
-Щоб застосувати міграцію до БД:
-```console
-npm run migration:run
-```
-
-
 ## Огляд структури 
 ```
 store-backend/
