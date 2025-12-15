@@ -19,7 +19,7 @@
 | img_url | TEXT | - | Посилання на логотип |
 | role | USERS_ROLE_ENUM | NOT NULL, DEFAULT(USER)  | Права доступу користувача |
 | created_at | TIMESTAMP | DEFAULT NOW() | Час створення облікового запису |
-| deleted_at | TIMESTAMP | NULL | Мітка часу м'якого видалення |
+| deleted_at | TIMESTAMP | - | Мітка часу м'якого видалення |
 
 Індекси:
 - `IDX_USER_ID` на `login` (для пошуку при вході)
@@ -45,7 +45,7 @@
 | version | INTEGER | NOT NULL, DEFAULT(1)  | Версія оновлення замовлення (для оптимістичного блокування) |
 | created_at | TIMESTAMP | DEFAULT NOW() | Час створення замовлення |
 | updated_at | TIMESTAMP | DEFAULT NOW() | Час оновлення замовлення |
-| deleted_at | TIMESTAMP | NULL | Мітка часу м'якого видалення |
+| deleted_at | TIMESTAMP | - | Мітка часу м'якого видалення |
 
 Зв'язки:
 - Багато-до-одного з `users` (замовлення може мати тільки одного користувача)
@@ -148,7 +148,7 @@
 | product_id |INTEGER | PRIMARY KEY | Ідентифікатор товару |
 | amount | INTEGER | NOT NULL, CHECK("amount" > 0) | Кількість товару в замовленні |
 | price | INTEGER | NOT NULL, CHECK("price" > 0) | Ціна товар на момент замовлення |
-| deleted_at | TIMESTAMP | NULL | Мітка часу м'якого видалення |
+| deleted_at | TIMESTAMP | - | Мітка часу м'якого видалення |
 
 Зв'язки:
 - Багато-до-одного з `orders` (Зв'язок з таблицей order)
