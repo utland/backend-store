@@ -57,10 +57,10 @@ npm run test:e2e
 
 Щоб запустити конкретний тестовий файл:
 ```console
-npm tun test -- user.service
+npm run test -- user.service
 ```
 ```console
-npm tun test:e2e -- user.e2e
+npm run test:e2e -- user.e2e
 ```
 
 ## Міграції

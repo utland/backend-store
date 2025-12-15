@@ -291,7 +291,7 @@ describe("User test", () => {
         });
 
         describe("updateCartProduct", () => {
-            it("should add new product to user's cart", async () => {
+            it("should add update product to user's cart", async () => {
                 const token = users.get("user")?.token;
 
                 const updateCPDto: UpdateCartProductDto = {

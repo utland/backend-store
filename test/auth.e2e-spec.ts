@@ -33,15 +33,15 @@ describe("Authorization", () => {
         await test.closeApp();
     });
 
-    it("it should require authorization", async () => {
+    it("should require authorization", async () => {
         await request(server).get("/product").expect(401);
     });
 
-    it("/auth/register", async () => {
+    it("should successfully register user", async () => {
         await request(server).post("/auth/register").send(testSignUp).expect(201);
     });
 
-    it("/auth/login", async () => {
+    it("should successfully allow for user to login", async () => {
         await request(server).post("/auth/register").send(testSignUp);
 
         await request(server)
